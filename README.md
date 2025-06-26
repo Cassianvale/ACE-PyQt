@@ -1,6 +1,7 @@
 # QTXX
 
 > 使用PyQt6构建的桌面应用程序，用于简化Gui应用开发流程
+> 在[ACE-KILLER](https://github.com/Cassianvale/ACE-KILLER)项目基础上进行拆解和开发
 
 ## 特性
 - [x] 配置管理
