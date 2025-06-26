@@ -1,0 +1,29 @@
+--index-url https://pypi.tuna.tsinghua.edu.cn/simple
+certifi==2025.6.15
+charset-normalizer==3.4.2
+colorama==0.4.6
+idna==3.10
+loguru==0.7.3
+packaging==25.0
+psutil==7.0.0
+pywin32==310
+pyyaml==6.0.2
+requests==2.32.4
+shiboken6==6.9.1
+typing-extensions==4.14.0
+urllib3==2.5.0
+win32-setctime==1.2.0
+windows-toasts==1.3.1
+winrt-runtime==3.2.1
+winrt-windows-data-xml-dom==3.2.1
+winrt-windows-foundation==3.2.1
+winrt-windows-foundation-collections==3.2.1
+winrt-windows-ui-notifications==3.2.1
+# Nuitka
+nuitka==2.7.10
+ordered-set==4.1.0
+zstandard==0.23.0
+# PyQt6
+pyqt6==6.9.1
+pyqt6-qt6==6.9.1
+pyqt6-sip==13.10.2
