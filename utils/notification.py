@@ -5,6 +5,10 @@
 通知系统模块
 """
 
+import winrt
+import winrt.windows.foundation
+import winrt.windows.foundation.collections
+
 import os
 import sys
 import queue
