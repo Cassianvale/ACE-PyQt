@@ -31,5 +31,7 @@
    pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
    ```
 
-3. 环境变量修改  
-- 更改`app_config.py`文件  
+3. 配置环境变量  
+
+   - 打开并根据实际需求修改 `app_config.py` 配置文件中的相关参数  
+  

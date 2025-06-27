@@ -12,7 +12,8 @@ import queue
 from config import ConfigManager, APP_INFO, DEFAULT_CONFIG, SYSTEM_CONFIG
 from utils import (
     run_as_admin, check_single_instance, setup_logger, logger,
-    find_icon_path, send_notification, create_notification_thread
+    find_icon_path, send_notification, create_notification_thread,
+    check_for_update
 )
 from ui import create_gui
 
@@ -81,11 +82,16 @@ def main(custom_app_info=None, custom_default_config=None, custom_system_config=
     github_repo = config_manager.get_github_repo()
     github_releases = config_manager.get_github_releases_url()
     
+    if config_manager.check_update_on_start:
+        logger.debug("启动时检查更新已开启，执行静默检查更新...")
+        check_for_update(config_manager, silent_mode=True)
+    
     buttons = [
         {'text': '访问项目官网', 'action': 'open_url', 'launch': f'https://github.com/{github_repo}'},
         {'text': '下载最新版本', 'action': 'open_url', 'launch': github_releases}
     ]
     
+    # 不受Windows通知选项限制，每次开启都显示通知
     send_notification(
         title=app_name,
         message=f"🚀 欢迎使用 {app_name} ！\n🐶 作者: {app_author}",

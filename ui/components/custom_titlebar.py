@@ -8,6 +8,7 @@ from PyQt6.QtCore import Qt, QSize, QPropertyAnimation, QEasingCurve, QParallelA
 from PyQt6.QtGui import QIcon
 from .circle_button import CircleButton
 from utils import logger
+from config.app_config import APP_INFO
 
 
 @dataclass
@@ -251,7 +252,7 @@ class CustomTitleBar(QWidget):
             # 显示托盘通知（使用主窗口的托盘图标）
             if hasattr(self.parent, 'tray_icon') and self.parent.tray_icon:
                 self.parent.tray_icon.showMessage(
-                    "PyApp",
+                    f"{APP_INFO['name']}",
                     "程序已最小化到系统托盘",
                     QSystemTrayIcon.MessageIcon.Information,
                     1000

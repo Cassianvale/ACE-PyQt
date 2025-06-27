@@ -50,6 +50,7 @@ class ConfigManager:
         self.auto_start = self.default_config["application"]["auto_start"]
         self.close_to_tray = self.default_config["application"]["close_to_tray"]
         self.theme = self.default_config["application"]["theme"]
+        self.check_update_on_start = self.default_config["application"]["check_update_on_start"]
         
         # 确保配置目录存在
         self._ensure_directories()
@@ -123,46 +124,52 @@ class ConfigManager:
                         logger.debug(f"已从配置文件加载调试模式设置: {self.debug_mode}")
 
                 # 读取开机自启设置
-                if "application" in config_data and "auto_start" in config_data["application"]:
-                    self.auto_start = bool(config_data["application"]["auto_start"])
-                    # 检查实际开机自启状态与配置是否一致
-                    actual_auto_start = check_auto_start(self.app_info["name"])
-                    if self.auto_start != actual_auto_start:
-                        logger.warning(
-                            f"开机自启配置与实际状态不一致，配置为:{self.auto_start}，实际为:{actual_auto_start}，将以配置为准"
+                if "application" in config_data:
+                    if "auto_start" in config_data["application"]:
+                        self.auto_start = bool(config_data["application"]["auto_start"])
+                        # 检查实际开机自启状态与配置是否一致
+                        actual_auto_start = check_auto_start(self.app_info["name"])
+                        if self.auto_start != actual_auto_start:
+                            logger.warning(
+                                f"开机自启配置与实际状态不一致，配置为:{self.auto_start}，实际为:{actual_auto_start}，将以配置为准"
+                            )
+
+                        # 确保开机自启状态与配置一致
+                        if self.auto_start:
+                            enable_auto_start(self.app_info["name"])
+                        else:
+                            disable_auto_start(self.app_info["name"])
+
+                        logger.debug(f"已从配置文件加载开机自启设置: {self.auto_start}")
+                    else:
+                        # 如果配置中没有自启设置，检查startup文件夹中是否已设置
+                        if check_auto_start(self.app_info["name"]):
+                            # 如果startup文件夹中已设置，则更新配置
+                            self.auto_start = True
+                            logger.debug("检测到startup文件夹中已设置开机自启，已更新配置")
+
+                    # 读取关闭行为设置
+                    if "close_to_tray" in config_data["application"]:
+                        self.close_to_tray = bool(config_data["application"]["close_to_tray"])
+                        logger.debug(
+                            f"已从配置文件加载关闭行为设置: {'最小化到后台' if self.close_to_tray else '直接退出'}"
                         )
 
-                    # 确保开机自启状态与配置一致
-                    if self.auto_start:
-                        enable_auto_start(self.app_info["name"])
-                    else:
-                        disable_auto_start(self.app_info["name"])
+                    # 读取主题设置
+                    if "theme" in config_data["application"]:
+                        theme_value = config_data["application"]["theme"]
+                        if theme_value in ["light", "dark"]:
+                            self.theme = theme_value
+                            logger.debug(f"已从配置文件加载主题设置: {self.theme}")
+                        else:
+                            logger.warning(f"配置文件中的主题值无效: {theme_value}，使用默认值: {self.default_config['application']['theme']}")
+                            self.theme = self.default_config["application"]["theme"]
+                    
+                    # 读取启动时检查更新设置
+                    if "check_update_on_start" in config_data["application"]:
+                        self.check_update_on_start = bool(config_data["application"]["check_update_on_start"])
+                        logger.debug(f"已从配置文件加载启动时检查更新设置: {self.check_update_on_start}")
 
-                    logger.debug(f"已从配置文件加载开机自启设置: {self.auto_start}")
-                else:
-                    # 如果配置中没有自启设置，检查startup文件夹中是否已设置
-                    if check_auto_start(self.app_info["name"]):
-                        # 如果startup文件夹中已设置，则更新配置
-                        self.auto_start = True
-                        logger.debug("检测到startup文件夹中已设置开机自启，已更新配置")
-
-                # 读取关闭行为设置
-                if "application" in config_data and "close_to_tray" in config_data["application"]:
-                    self.close_to_tray = bool(config_data["application"]["close_to_tray"])
-                    logger.debug(
-                        f"已从配置文件加载关闭行为设置: {'最小化到后台' if self.close_to_tray else '直接退出'}"
-                    )
-
-                # 读取主题设置
-                if "application" in config_data and "theme" in config_data["application"]:
-                    theme_value = config_data["application"]["theme"]
-                    if theme_value in ["light", "dark"]:
-                        self.theme = theme_value
-                        logger.debug(f"已从配置文件加载主题设置: {self.theme}")
-                    else:
-                        logger.warning(f"配置文件中的主题值无效: {theme_value}，使用默认值: {self.default_config['application']['theme']}")
-                        self.theme = self.default_config["application"]["theme"]
-                        
                 logger.debug("配置文件加载成功")
                 return True
             except Exception as e:
@@ -191,6 +198,7 @@ class ConfigManager:
             self.auto_start = self.default_config["application"]["auto_start"]
             self.close_to_tray = self.default_config["application"]["close_to_tray"]
             self.theme = self.default_config["application"]["theme"]
+            self.check_update_on_start = self.default_config["application"]["check_update_on_start"]
 
             logger.debug("已创建并加载默认配置")
         except Exception as e:
@@ -216,6 +224,7 @@ class ConfigManager:
                     "auto_start": self.auto_start,
                     "close_to_tray": self.close_to_tray,
                     "theme": self.theme,
+                    "check_update_on_start": self.check_update_on_start
                 }
             }
 

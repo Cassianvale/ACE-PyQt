@@ -28,6 +28,7 @@ class VersionChecker(QObject):
         self.github_releases_url = config_manager.get_github_releases_url()
         self.app_name = config_manager.get_app_name()
         self.timeout = config_manager.system_config.get("network_timeout", 10)
+        self.silent_mode = False  # 默认非静默模式，显示更新弹窗
 
     def get_current_version(self):
         """
@@ -43,10 +44,14 @@ class VersionChecker(QObject):
         # 如果没有配置管理器，返回默认版本号
         return "1.0.0"
     
-    def check_for_updates_async(self):
+    def check_for_updates_async(self, silent_mode=False):
         """
         异步检查更新
+        
+        Args:
+            silent_mode (bool): 是否静默检查（不显示弹窗）
         """
+        self.silent_mode = silent_mode
         thread = threading.Thread(target=self._check_for_updates_thread)
         thread.daemon = True
         thread.start()
@@ -120,24 +125,30 @@ class VersionChecker(QObject):
             
             logger.debug(f"版本检查完成 - 当前: {current_ver}, 最新: {latest_version}, 有更新: {has_update}")
             
-            # 发送检查完成信号
+            # 静默模式下也发送信号，但添加静默标记，用于更新界面信息而不显示弹窗
             self.check_finished.emit(
                 has_update, 
                 current_ver, 
                 latest_version, 
                 update_info_str, 
-                ""
+                "silent_mode" if self.silent_mode else ""  # 使用错误信息字段传递静默模式标记
             )
             
+            # 记录静默模式信息
+            if self.silent_mode:
+                logger.info(f"静默检查模式：有更新: {has_update}, 最新版本: {latest_version}")
+                
         except requests.exceptions.Timeout:
             error_msg = "网络请求超时，请检查网络连接后稍后重试"
             logger.warning(f"检查更新失败: {error_msg}")
-            self.check_finished.emit(False, self.get_current_version(), "", "", error_msg)
+            if not self.silent_mode:
+                self.check_finished.emit(False, self.get_current_version(), "", "", error_msg)
             
         except requests.exceptions.ConnectionError:
             error_msg = "网络连接失败，请检查网络连接后稍后重试"
             logger.warning(f"检查更新失败: {error_msg}")
-            self.check_finished.emit(False, self.get_current_version(), "", "", error_msg)
+            if not self.silent_mode:
+                self.check_finished.emit(False, self.get_current_version(), "", "", error_msg)
             
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 403:
@@ -146,12 +157,14 @@ class VersionChecker(QObject):
             else:
                 error_msg = f"GitHub API 请求失败: {e.response.status_code}"
                 logger.warning(f"检查更新失败: {error_msg}")
-            self.check_finished.emit(False, self.get_current_version(), "", "", error_msg)
+            if not self.silent_mode:
+                self.check_finished.emit(False, self.get_current_version(), "", "", error_msg)
             
         except Exception as e:
             error_msg = f"检查更新时发生错误: {str(e)}"
             logger.error(f"检查更新失败: {error_msg}")
-            self.check_finished.emit(False, self.get_current_version(), "", "", error_msg)
+            if not self.silent_mode:
+                self.check_finished.emit(False, self.get_current_version(), "", "", error_msg)
     
     def _compare_versions(self, current_ver, latest_ver):
         """
@@ -221,6 +234,22 @@ def get_version_checker(config_manager=None):
     if _version_checker_instance is None:
         _version_checker_instance = VersionChecker(config_manager)
     return _version_checker_instance
+
+
+def check_for_update(config_manager=None, silent_mode=False):
+    """
+    检查更新的便捷函数
+    
+    Args:
+        config_manager: 配置管理器实例
+        silent_mode (bool): 是否静默检查（不显示弹窗）
+    
+    Returns:
+        VersionChecker: 版本检查器实例
+    """
+    checker = get_version_checker(config_manager)
+    checker.check_for_updates_async(silent_mode=silent_mode)
+    return checker
 
 
 def get_app_version(config_manager=None):

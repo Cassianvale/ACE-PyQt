@@ -10,6 +10,7 @@ import os
 import sys
 import win32com.client
 from .logger import logger
+from config.app_config import APP_INFO
 
 
 def run_as_admin():
@@ -38,25 +39,29 @@ def check_single_instance(mutex_name=None):
         bool: 如果是首次运行返回True，否则返回False
     """
     if mutex_name is None:
-        mutex_name = "Global\\PyApp_MUTEX"
+        app_name = APP_INFO["name"]
+        mutex_name = f"Global\\{app_name}_MUTEX"
         
     mutex = ctypes.windll.kernel32.CreateMutexW(None, False, mutex_name)
     if ctypes.windll.kernel32.GetLastError() == 183:
         logger.warning("程序已经在运行中，无法启动多个实例！")
         
         # 显示提醒弹窗
-        show_already_running_dialog()
+        show_already_running_dialog(APP_INFO["name"])
         return False
     return True
 
 
-def show_already_running_dialog(app_name="PyApp"):
+def show_already_running_dialog(app_name=None):
     """
     显示程序已运行的提醒对话框
     
     Args:
         app_name (str): 应用名称
     """
+    if app_name is None:
+        app_name = APP_INFO["name"]
+        
     try:
         # 使用Windows API显示消息框
         message = (
@@ -101,7 +106,7 @@ def get_program_path():
         return os.path.abspath(sys.argv[0])
 
 
-def check_auto_start(app_name="PyApp"):
+def check_auto_start(app_name=None):
     """
     检查是否设置了开机自启
     
@@ -111,6 +116,9 @@ def check_auto_start(app_name="PyApp"):
     Returns:
         bool: 是否设置了开机自启
     """
+    if app_name is None:
+        app_name = APP_INFO["name"]
+        
     try:
         # 获取startup文件夹路径
         startup_folder = os.path.join(os.path.expanduser("~"), 
@@ -151,7 +159,7 @@ def check_auto_start(app_name="PyApp"):
         return False
 
 
-def enable_auto_start(app_name="PyApp"):
+def enable_auto_start(app_name=None):
     """
     设置开机自启
     
@@ -161,6 +169,9 @@ def enable_auto_start(app_name="PyApp"):
     Returns:
         bool: 操作是否成功
     """
+    if app_name is None:
+        app_name = APP_INFO["name"]
+        
     try:
         # 获取startup文件夹路径
         startup_folder = os.path.join(os.path.expanduser("~"), 
@@ -193,7 +204,7 @@ def enable_auto_start(app_name="PyApp"):
         return False
 
 
-def disable_auto_start(app_name="PyApp"):
+def disable_auto_start(app_name=None):
     """
     取消开机自启
     
@@ -203,6 +214,9 @@ def disable_auto_start(app_name="PyApp"):
     Returns:
         bool: 操作是否成功
     """
+    if app_name is None:
+        app_name = APP_INFO["name"]
+        
     try:
         # 获取startup文件夹路径
         startup_folder = os.path.join(os.path.expanduser("~"), 

@@ -91,6 +91,9 @@ class MainWindow(QWidget):
             self.startup_checkbox.setChecked(self.config_manager.auto_start)
             self.startup_action.setChecked(self.config_manager.auto_start)
             
+            # 设置检查更新选项
+            self.check_update_on_start_checkbox.setChecked(self.config_manager.check_update_on_start)
+            
             # 设置调试模式选项
             self.debug_checkbox.setChecked(self.config_manager.debug_mode)
             
@@ -208,6 +211,12 @@ class MainWindow(QWidget):
         self.startup_checkbox = QCheckBox("开机自启动")
         self.startup_checkbox.stateChanged.connect(self.toggle_auto_start)
         startup_layout.addWidget(self.startup_checkbox)
+        
+        # 添加启动时检查更新选项
+        self.check_update_on_start_checkbox = QCheckBox("启动时检查更新")
+        self.check_update_on_start_checkbox.stateChanged.connect(self.toggle_check_update_on_start)
+        startup_layout.addWidget(self.check_update_on_start_checkbox)
+        
         startup_group.setLayout(startup_layout)
         settings_layout.addWidget(startup_group)
         
@@ -370,6 +379,11 @@ class MainWindow(QWidget):
         config_dir_action = QAction("打开配置目录", self)
         config_dir_action.triggered.connect(self.open_config_dir)
         tray_menu.addAction(config_dir_action)
+        
+        # 检查更新动作
+        check_update_action = QAction("检查更新", self)
+        check_update_action.triggered.connect(self.check_update)
+        tray_menu.addAction(check_update_action)
         
         tray_menu.addSeparator()
         
@@ -589,6 +603,52 @@ class MainWindow(QWidget):
         # 异步检查更新
         self.version_checker.check_for_updates_async()
     
+    def _open_download_url(self, download_url=None, is_direct_download=False):
+        """
+        打开下载链接或发布页面
+        
+        Args:
+            download_url: 下载链接，如果为None则使用GitHub发布页面
+            is_direct_download: 是否为直接下载链接
+        """
+        try:
+            import webbrowser
+            import os
+            
+            # 确定最终使用的下载URL
+            final_url = download_url if download_url else self.github_releases_url
+            
+            # 如果是直接下载链接
+            if is_direct_download:
+                # 在Windows上使用默认浏览器下载
+                if os.name == 'nt':
+                    os.startfile(final_url)
+                else:
+                    webbrowser.open(final_url)
+                logger.debug(f"用户直接下载新版本: {final_url}")
+            else:
+                # 如果不是直接下载链接，打开网页
+                webbrowser.open(final_url)
+                logger.debug(f"用户访问下载页面: {final_url}")
+                
+            return True
+        except Exception as e:
+            logger.error(f"打开下载链接失败: {str(e)}")
+            QMessageBox.warning(self, "错误", f"打开下载链接失败: {str(e)}")
+            return False
+    
+    def _open_download_page(self, link):
+        """
+        通过版本标签链接触发下载
+        
+        Args:
+            link: 链接文本
+        """
+        if hasattr(self, 'download_url') and self.download_url:
+            self._open_download_url(self.download_url, is_direct_download=True)
+        else:
+            self._open_download_url(self.github_releases_url, is_direct_download=False)
+                
     @pyqtSlot(bool, str, str, str, str)
     def _on_version_check_finished(self, has_update, current_ver, latest_ver, update_info_str, error_msg):
         """版本检查完成的处理函数"""
@@ -596,13 +656,51 @@ class MainWindow(QWidget):
         self.check_update_btn.setText("检查更新")
         self.check_update_btn.setEnabled(True)
         
+        # 检测是否为静默模式
+        silent_mode = (error_msg == "silent_mode")
+        
+        # 保存下载URL
+        self.download_url = None
+        if has_update and update_info_str:
+            try:
+                import json
+                update_info = json.loads(update_info_str)
+                self.download_url = update_info.get('download_url')
+                if not self.download_url:
+                    self.download_url = update_info.get('url', self.github_releases_url)
+            except:
+                self.download_url = self.github_releases_url
+        
         # 更新版本显示标签
         if has_update and latest_ver:
-            self.version_label.setText(f"当前版本: v{current_ver} | 最新版本: v{latest_ver} 🆕")
+            # 添加HTML链接，设置为可点击状态
+            self.version_label.setText(f"当前版本: v{current_ver} | 最新版本: v{latest_ver} 🆕 <a href='#download'>前往下载</a>")
+            self.version_label.setOpenExternalLinks(False)  # 不使用浏览器打开
+            self.version_label.setTextInteractionFlags(Qt.TextInteractionFlag.LinksAccessibleByMouse)
+            # 断开之前可能的连接
+            try:
+                self.version_label.linkActivated.disconnect()
+            except:
+                pass
+            # 连接到下载函数
+            self.version_label.linkActivated.connect(self._open_download_page)
             StyleHelper.set_label_type(self.version_label, "warning")
         else:
             self.version_label.setText(f"当前版本: v{current_ver}")
             StyleHelper.set_label_type(self.version_label, "info")
+        
+        # 如果是静默模式，只更新界面不显示弹窗
+        if silent_mode:
+            logger.debug(f"静默检查更新中，有更新: {has_update}")
+            # 如果有更新，在托盘图标中显示简短提示
+            if has_update and self.config_manager.show_notifications:
+                self.tray_icon.showMessage(
+                    self.app_name,
+                    f"发现新版本 v{latest_ver} 可用",
+                    QSystemTrayIcon.MessageIcon.Information,
+                    3000  # 显示3秒
+                )
+            return
         
         # 创建并显示消息
         result = create_update_message(
@@ -655,42 +753,21 @@ class MainWindow(QWidget):
             
             # 处理下载按钮点击
             download_url = extra_data.get('download_url')
+            is_direct_download = extra_data.get('is_direct_download', False)
             should_download = False
-            final_download_url = None
             
             if is_direct_download:
                 # 有直接下载链接的情况
                 if clicked_button == direct_btn:
                     should_download = True
-                    final_download_url = download_url
             else:
                 # 没有直接下载链接的情况
                 if clicked_button == download_btn:
                     should_download = True
-                    final_download_url = download_url
             
             # 执行下载
-            if should_download and final_download_url:
-                import subprocess
-                import os
-                try:
-                    # 在Windows上使用默认浏览器下载
-                    if os.name == 'nt':
-                        os.startfile(final_download_url)
-
-                except Exception as e:
-                    logger.error(f"启动下载失败: {str(e)}")
-                    # 回退到浏览器打开
-                    webbrowser.open(final_download_url)
-            elif should_download:
-                # 备用方案：打开发布页面
-                import json
-                try:
-                    update_info = json.loads(update_info_str)
-                    release_url = update_info.get('url', self.github_releases_url)
-                    webbrowser.open(release_url)
-                except:
-                    webbrowser.open(self.github_releases_url)
+            if should_download:
+                self._open_download_url(download_url, is_direct_download)
                     
         else:
             QMessageBox.information(self, title, message)
@@ -891,6 +968,28 @@ class MainWindow(QWidget):
             
             # 立即更新状态显示
             self.update_status()
+
+    def toggle_check_update_on_start(self):
+        """切换启动时检查更新设置"""
+        try:
+            # 获取当前复选框状态
+            check_update_on_start = self.check_update_on_start_checkbox.isChecked()
+            
+            # 更新配置
+            self.config_manager.check_update_on_start = check_update_on_start
+            
+            # 保存配置
+            if self.config_manager.save_config():
+                logger.debug(f"启动时检查更新设置已保存: {check_update_on_start}")
+            else:
+                logger.warning("启动时检查更新设置保存失败")
+                
+        except Exception as e:
+            logger.error(f"切换启动时检查更新设置失败: {str(e)}")
+            QMessageBox.warning(self, "错误", f"切换启动时检查更新设置失败: {str(e)}")
+            
+            # 恢复界面状态
+            self.check_update_on_start_checkbox.setChecked(self.config_manager.check_update_on_start)
 
 def get_start_type_display(start_type):
     """获取启动类型的显示名称"""
