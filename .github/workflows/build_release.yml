@@ -15,6 +15,11 @@ on:
         description: "发布说明"
         required: false
         default: "此版本包含性能改进和错误修复"
+      should_publish:
+        description: "是否发布到GitHub Releases"
+        required: true
+        default: false
+        type: boolean
 
 jobs:
   build:
@@ -208,6 +213,7 @@ jobs:
 
       - name: 创建发布
         id: create_release
+        if: ${{ github.event.inputs.should_publish == 'true' }}
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ github.event.inputs.version }}
