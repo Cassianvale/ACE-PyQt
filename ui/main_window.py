@@ -65,7 +65,6 @@ class MainWindow(QWidget):
         
         # 初始化定时器和设置
         self.update_timer = QTimer(self)
-        self.update_timer.timeout.connect(self.update_status)
         self.update_timer.start(1000)
         
         # 应用初始主题
@@ -109,11 +108,6 @@ class MainWindow(QWidget):
         except Exception as e:
             logger.error(f"加载界面设置失败: {str(e)}")
     
-    def update_status(self):
-        """更新状态显示"""
-        # 简化的状态更新，主要用于定时刷新
-        pass
-    
     def paintEvent(self, event):
         """绘制圆角窗口背景"""
         painter = QPainter(self)
@@ -133,12 +127,10 @@ class MainWindow(QWidget):
     def showEvent(self, event):
         """窗口显示时应用圆角遮罩"""
         super().showEvent(event)
-        # 延迟应用圆角遮罩
-        QTimer.singleShot(10, self.apply_rounded_mask)
-        # 更新托盘菜单文本
-        QTimer.singleShot(10, self.update_tray_menu_text)
+        self.apply_rounded_mask()
         # 重置自定义最小化标志
         self.is_custom_minimized = False
+        self.update_tray_menu_text()
     
     def apply_rounded_mask(self):
         """应用圆角遮罩到窗口"""
@@ -425,9 +417,6 @@ class MainWindow(QWidget):
             
             # 主题切换现在通过信号自动完成，只需要应用组件属性
             self.apply_component_properties()
-            
-            # 立即更新状态显示
-            self.update_status()
     
     def apply_component_properties(self):
         """应用组件属性"""
@@ -522,9 +511,6 @@ class MainWindow(QWidget):
             logger.debug(f"通知状态已更改并保存: {'开启' if self.config_manager.show_notifications else '关闭'}")
         else:
             logger.warning(f"通知状态已更改但保存失败: {'开启' if self.config_manager.show_notifications else '关闭'}")
-        
-        # 立即更新状态显示
-        self.update_status()
     
     def toggle_notifications(self):
         """切换通知开关"""
@@ -560,9 +546,6 @@ class MainWindow(QWidget):
             logger.debug(f"开机自启状态已更改并保存: {'开启' if self.config_manager.auto_start else '关闭'}")
         else:
             logger.warning(f"开机自启状态已更改但保存失败: {'开启' if self.config_manager.auto_start else '关闭'}")
-        
-        # 立即更新状态显示
-        self.update_status()
     
     def toggle_auto_start(self):
         """切换开机自启动开关"""
@@ -675,13 +658,8 @@ class MainWindow(QWidget):
         if has_update and latest_ver:
             # 添加HTML链接，设置为可点击状态
             self.version_label.setText(f"当前版本: v{current_ver} | 最新版本: v{latest_ver} 🆕 <a href='#download'>前往下载</a>")
-            self.version_label.setOpenExternalLinks(False)  # 不使用浏览器打开
+            self.version_label.setOpenExternalLinks(False)  # 使用自定义逻辑来处理链接
             self.version_label.setTextInteractionFlags(Qt.TextInteractionFlag.LinksAccessibleByMouse)
-            # 断开之前可能的连接
-            try:
-                self.version_label.linkActivated.disconnect()
-            except:
-                pass
             # 连接到下载函数
             self.version_label.linkActivated.connect(self._open_download_page)
             StyleHelper.set_label_type(self.version_label, "warning")
@@ -827,8 +805,7 @@ class MainWindow(QWidget):
                 self.hide()
                 logger.debug("从托盘菜单隐藏主窗口")
         
-        # 更新托盘菜单文本
-        QTimer.singleShot(300, self.update_tray_menu_text)
+        self.update_tray_menu_text()
     
     def update_tray_menu_text(self):
         """更新托盘菜单项文本"""
@@ -837,18 +814,6 @@ class MainWindow(QWidget):
                 self.toggle_window_action.setText("显示主窗口")
             else:
                 self.toggle_window_action.setText("隐藏窗口到托盘")
-    
-    def show_main_window(self):
-        """显示主窗口"""
-        # 如果窗口是通过自定义标题栏最小化的，需要特殊处理
-        if self.is_custom_minimized:
-            self.restore_from_custom_minimize()
-        else:
-            self.showNormal()
-            self.activateWindow()
-        
-        # 更新托盘菜单文本
-        self.update_tray_menu_text()
     
     def restore_from_custom_minimize(self):
         """从自定义标题栏最小化状态恢复窗口"""
@@ -862,7 +827,7 @@ class MainWindow(QWidget):
             self.showNormal()
             self.activateWindow()
             self.is_custom_minimized = False
-            logger.debug("窗口已简单恢复")
+            logger.debug("主窗口已恢复")
     
     def show_status(self):
         """在托盘菜单显示状态通知"""
@@ -886,11 +851,8 @@ class MainWindow(QWidget):
     def tray_icon_activated(self, reason):
         """处理托盘图标激活事件"""
         if reason == QSystemTrayIcon.ActivationReason.DoubleClick:
-            # 使用toggle_main_window方法切换窗口显示状态
             self.toggle_main_window()
-            # 更新托盘菜单文本
-            QTimer.singleShot(300, self.update_tray_menu_text)
-            
+              
     def confirm_exit(self):
         """确认退出程序"""
         self.exit_app()
@@ -915,8 +877,7 @@ class MainWindow(QWidget):
             # 最小化到后台
             event.ignore()
             self.hide()
-            # 更新托盘菜单文本
-            QTimer.singleShot(10, self.update_tray_menu_text)
+            self.update_tray_menu_text()
             # 如果托盘图标可见且通知开启，显示最小化提示
             if hasattr(self, 'tray_icon') and self.tray_icon.isVisible() and self.config_manager.show_notifications:
                 self.tray_icon.showMessage(
@@ -950,9 +911,7 @@ class MainWindow(QWidget):
             self.config_manager.log_rotation,
             new_debug_mode
         )
-        
-        # 立即更新状态显示
-        self.update_status()
+
 
     def on_close_behavior_changed(self):
         """关闭行为选项变化时的处理"""
@@ -965,9 +924,6 @@ class MainWindow(QWidget):
                 logger.debug(f"关闭行为设置已更改并保存: {'最小化到后台' if close_to_tray else '直接退出'}")
             else:
                 logger.warning(f"关闭行为设置已更改但保存失败: {'最小化到后台' if close_to_tray else '直接退出'}")
-            
-            # 立即更新状态显示
-            self.update_status()
 
     def toggle_check_update_on_start(self):
         """切换启动时检查更新设置"""

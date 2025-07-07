@@ -59,7 +59,6 @@ class CircleButton(QWidget):
 
     def _draw_icon(self, painter):
         """绘制图标"""
-        icon_size = QSize(self._icon_size, self._icon_size)
         icon_pos_x = (self.width() - self._icon_size) // 2
         icon_pos_y = (self.height() - self._icon_size) // 2
         self._icon.paint(

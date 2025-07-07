@@ -248,16 +248,7 @@ class CustomTitleBar(QWidget):
             # 重置动画组
             if self.minimize_animations:
                 self.minimize_animations.stop()
-            
-            # 显示托盘通知（使用主窗口的托盘图标）
-            if hasattr(self.parent, 'tray_icon') and self.parent.tray_icon:
-                self.parent.tray_icon.showMessage(
-                    f"{APP_INFO['name']}",
-                    "程序已最小化到系统托盘",
-                    QSystemTrayIcon.MessageIcon.Information,
-                    1000
-                )
-            
+
             # 更新托盘菜单文本
             if hasattr(self.parent, 'update_tray_menu_text'):
                 self.parent.update_tray_menu_text()

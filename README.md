@@ -51,7 +51,13 @@
    pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
    ```
 
-3. 配置环境变量  
+3. 打包测试 
+> 请勿将 pyinstaller --onefile 打包用于正式环境
+   ```python
+   pyinstaller --noconsole  --add-data "assets/icon/*;assets/icon" --onefile main.py
+   ```
+
+4. 配置环境变量  
 
    - 打开并根据实际需求修改 `app_config.py` 配置文件中的相关参数  
   

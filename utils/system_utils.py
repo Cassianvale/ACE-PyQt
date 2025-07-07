@@ -8,7 +8,7 @@
 import ctypes
 import os
 import sys
-import win32com.client
+import subprocess
 from .logger import logger
 from config.app_config import APP_INFO
 
@@ -108,7 +108,7 @@ def get_program_path():
 
 def check_auto_start(app_name=None):
     """
-    检查是否设置了开机自启
+    检查是否设置了开机自启（使用任务计划程序）
     
     Args:
         app_name (str): 应用名称
@@ -120,39 +120,19 @@ def check_auto_start(app_name=None):
         app_name = APP_INFO["name"]
         
     try:
-        # 获取startup文件夹路径
-        startup_folder = os.path.join(os.path.expanduser("~"), 
-                                    "AppData", "Roaming", "Microsoft", "Windows", 
-                                    "Start Menu", "Programs", "Startup")
+        # 清理任务名称，避免特殊字符
+        task_name = f"{app_name}_AutoStart".replace(" ", "_")
         
-        # 快捷方式文件路径
-        shortcut_path = os.path.join(startup_folder, f"{app_name}.lnk")
+        # 使用schtasks命令查询任务是否存在
+        result = subprocess.run(
+            ["schtasks", "/query", "/tn", task_name],
+            capture_output=True,
+            text=True,
+            creationflags=subprocess.CREATE_NO_WINDOW
+        )
         
-        # 检查快捷方式是否存在
-        if not os.path.exists(shortcut_path):
-            return False
-        
-        # 检查快捷方式是否指向当前程序
-        try:
-            shell = win32com.client.Dispatch("WScript.Shell")
-            shortcut = shell.CreateShortCut(shortcut_path)
-            target_path = shortcut.TargetPath
-            arguments = shortcut.Arguments
-            
-            current_path = get_program_path()
-            expected_args = "--minimized"
-            
-            # 比较路径和参数
-            if (target_path.lower() == current_path.lower() and 
-                arguments.strip() == expected_args):
-                return True
-            else:
-                logger.warning(f"快捷方式路径或参数不一致，将更新。目标:{target_path}，参数:{arguments}，当前:{current_path}")
-                return False
-                
-        except Exception as e:
-            logger.error(f"读取快捷方式信息失败: {str(e)}")
-            return False
+        # 如果返回码为0，表示任务存在
+        return result.returncode == 0
             
     except Exception as e:
         logger.error(f"检查开机自启状态失败: {str(e)}")
@@ -161,7 +141,7 @@ def check_auto_start(app_name=None):
 
 def enable_auto_start(app_name=None):
     """
-    设置开机自启
+    设置开机自启（使用任务计划程序，可跳过UAC以管理员权限运行）
     
     Args:
         app_name (str): 应用名称
@@ -173,32 +153,39 @@ def enable_auto_start(app_name=None):
         app_name = APP_INFO["name"]
         
     try:
-        # 获取startup文件夹路径
-        startup_folder = os.path.join(os.path.expanduser("~"), 
-                                    "AppData", "Roaming", "Microsoft", "Windows", 
-                                    "Start Menu", "Programs", "Startup")
+        # 清理任务名称，避免特殊字符
+        task_name = f"{app_name}_AutoStart".replace(" ", "_")
         
-        # 确保startup文件夹存在
-        if not os.path.exists(startup_folder):
-            os.makedirs(startup_folder, exist_ok=True)
+        # 获取当前程序路径
+        program_path = get_program_path()
         
-        # 快捷方式文件路径
-        shortcut_path = os.path.join(startup_folder, f"{app_name}.lnk")
+        # 构建任务运行命令（程序路径 + --minimized参数）
+        task_command = f'"{program_path}" --minimized'
         
-        # 创建快捷方式
-        shell = win32com.client.Dispatch("WScript.Shell")
-        shortcut = shell.CreateShortCut(shortcut_path)
-        shortcut.TargetPath = get_program_path()
-        shortcut.Arguments = "--minimized"  # 开机自启时自动最小化到托盘
-        shortcut.Description = f"{app_name}"
-        shortcut.WorkingDirectory = os.path.dirname(get_program_path())
+        # 使用schtasks命令创建任务
+        # /create: 创建新任务
+        # /tn: 任务名称
+        # /tr: 要运行的程序
+        # /sc onlogon: 登录时触发
+        # /rl highest: 以最高权限运行（跳过UAC）
+        # /f: 强制创建，覆盖现有任务
+        result = subprocess.run([
+            "schtasks", "/create",
+            "/tn", task_name,
+            "/tr", task_command,
+            "/sc", "onlogon",
+            "/rl", "highest",
+            "/f"
+        ], capture_output=True, text=True, creationflags=subprocess.CREATE_NO_WINDOW)
         
-        # 保存快捷方式
-        shortcut.save()
-        
-        logger.debug(f"已设置开机自启（将最小化到托盘启动），快捷方式路径: {shortcut_path}")
-        return True
-        
+        if result.returncode == 0:
+            logger.debug(f"已设置开机自启（任务计划程序），任务名称: {task_name}")
+            logger.debug(f"任务将以管理员权限运行，跳过UAC提示")
+            return True
+        else:
+            logger.error(f"设置开机自启失败，错误信息: {result.stderr}")
+            return False
+            
     except Exception as e:
         logger.error(f"设置开机自启失败: {str(e)}")
         return False
@@ -206,7 +193,7 @@ def enable_auto_start(app_name=None):
 
 def disable_auto_start(app_name=None):
     """
-    取消开机自启
+    取消开机自启（删除任务计划程序中的任务）
     
     Args:
         app_name (str): 应用名称
@@ -218,23 +205,34 @@ def disable_auto_start(app_name=None):
         app_name = APP_INFO["name"]
         
     try:
-        # 获取startup文件夹路径
-        startup_folder = os.path.join(os.path.expanduser("~"), 
-                                    "AppData", "Roaming", "Microsoft", "Windows", 
-                                    "Start Menu", "Programs", "Startup")
+        # 清理任务名称，避免特殊字符
+        task_name = f"{app_name}_AutoStart".replace(" ", "_")
         
-        # 快捷方式文件路径
-        shortcut_path = os.path.join(startup_folder, f"{app_name}.lnk")
+        # 使用schtasks命令删除任务
+        # /delete: 删除任务
+        # /tn: 任务名称
+        # /f: 强制删除，不提示确认
+        result = subprocess.run([
+            "schtasks", "/delete",
+            "/tn", task_name,
+            "/f"
+        ], capture_output=True, text=True, creationflags=subprocess.CREATE_NO_WINDOW)
         
-        # 删除快捷方式文件
-        if os.path.exists(shortcut_path):
-            os.remove(shortcut_path)
-            logger.debug(f"已取消开机自启，删除快捷方式: {shortcut_path}")
+        if result.returncode == 0:
+            logger.debug(f"已取消开机自启，删除任务计划程序任务: {task_name}")
+            return True
         else:
-            logger.debug("快捷方式不存在，无需删除")
-        
-        return True
+            # 如果任务不存在，返回码通常是1，这也算成功
+            if "不存在" in result.stderr or "does not exist" in result.stderr.lower() or "找不到指定的文件" in result.stderr:
+                logger.debug(f"任务计划程序任务不存在，无需删除: {task_name}")
+                return True
+            else:
+                logger.error(f"取消开机自启失败，错误信息: {result.stderr}")
+                return False
         
     except Exception as e:
         logger.error(f"取消开机自启失败: {str(e)}")
-        return False 
+        return False
+
+
+ 
