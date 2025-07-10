@@ -1,0 +1,49 @@
+name: 💡 功能建议
+description: 为项目提出新的想法
+title: "[功能]: "
+labels: ["kind/enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢您花时间提出新的功能建议!
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: 提交前检查
+      description: |
+        在提交 Issue 前请确保您已经完成了以下所有步骤
+      options:
+        - label: 我理解 Issue 是用于反馈和解决问题的，而非吐槽评论区，将尽可能提供更多信息帮助问题解决。
+          required: true
+        - label: 我已经查看了 **置顶 Issue** 并搜索了现有的 [开放Issue](https://github.com/Cassianvale/ACE-PyQt/issues)和[已关闭Issue](https://github.com/Cassianvale/ACE-PyQt/issues?q=is%3Aissue%20state%3Aclosed%20)，没有找到类似的问题。
+          required: true
+        - label: 我填写了简短且清晰明确的标题，以便开发者在翻阅 Issue 列表时能快速确定大致问题。而不是“一个建议”、“卡住了”等。
+          required: true
+        - label: 最新的 ACE-Killer 版本没有实现我所提出的功能。
+          required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: 版本
+      description: 您正在运行的 ACE-PyQt 版本是什么？
+      placeholder: 例如 v1.0.0
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: 请简明扼要地描述您希望解决的问题
+      description: 请简明扼要地描述您希望解决的问题
+      placeholder: 例如：程序无法对特定进程进行优化，希望可以增加进程管理器，用户可以手动选择要优化的进程。
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: 其他补充信息
+      description: 在此添加任何其他与功能建议相关的上下文或截图
