@@ -1,80 +1,103 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-日志系统模块
-"""
+"""日志封装"""
 
-import os
 import sys
-import datetime
-from loguru import logger as _logger
-
-# 统一logger实例
-logger = _logger
+from pathlib import Path
+from loguru import logger
 
 
 def setup_logger(log_dir, log_retention_days=7, log_rotation="1 day", debug_mode=False):
     """
     配置日志系统
-    
+
     Args:
-        log_dir (str): 日志保存目录
-        log_retention_days (int): 日志保留天数
-        log_rotation (str): 日志轮转周期
-        debug_mode (bool): 是否启用调试模式
-    
+        log_dir: 日志文件目录
+        log_retention_days: 日志保留天数
+        log_rotation: 日志轮转周期
+        debug_mode: 是否启用调试模式
+
     Returns:
         logger: 配置好的logger实例
-    """
-    # 移除默认的日志处理器
-    logger.remove()
-    
-    # 设置日志级别，调试模式为True时输出DEBUG级别日志，否则输出INFO级别
-    log_level = "DEBUG" if debug_mode else "INFO"
-    
-    # 获取当前日期作为日志文件名的一部分
-    today = datetime.datetime.now().strftime("%Y-%m-%d")
-    log_file = os.path.join(log_dir, f"{today}.log")
 
-    # 添加文件日志处理器，配置轮转和保留策略，写入到文件中
-    logger.add(
-        log_file,
-        rotation=log_rotation,  # 日志轮转周期
-        retention=f"{log_retention_days} days",  # 日志保留天数
-        format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {module}:{function}:{line} | {message}",
-        level=log_level,
-        encoding="utf-8"
-    )
-    
-    # 判断是否为打包的可执行文件，以及是否有控制台
-    is_frozen = getattr(sys, 'frozen', False)
-    has_console = True
-    
-    # 在Windows下，检查是否有控制台窗口
-    if is_frozen and sys.platform == 'win32':
-        try:
-            # 检查标准错误输出是否存在
-            if sys.stderr is None or not sys.stderr.isatty():
-                has_console = False
-        except (AttributeError, IOError):
-            has_console = False
-    
-    # 只有在有控制台的情况下才添加控制台日志处理器
-    if has_console:
-        # 添加控制台日志处理器，输出到控制台
-        logger.add(
-            sys.stderr,
-            format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {module}:{function}:{line} | {message}",
-            level=log_level,
-            colorize=True
+    Raises:
+        OSError: 当无法创建日志目录时
+        PermissionError: 当没有写入权限时
+    """
+    try:
+        # 移除默认的日志处理器
+        logger.remove()
+
+        # 确定日志级别
+        log_level = "DEBUG" if debug_mode else "INFO"
+
+        # 确保日志目录存在
+        log_path = Path(log_dir)
+        log_path.mkdir(parents=True, exist_ok=True)
+
+        # 配置控制台输出
+        console_format = (
+            "<green>{time:HH:mm:ss}</green> | <level>{level: <8}</level> | <level>{message}</level>"
+            if not debug_mode
+            else "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | "
+            "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> | <level>{message}</level>"
         )
-        logger.debug("已添加控制台日志处理器")
-    else:
-        logger.debug("检测到无控制台环境，不添加控制台日志处理器")
-    
-    logger.debug(f"日志系统已初始化，日志文件: {log_file}")
-    logger.debug(f"日志保留天数: {log_retention_days}，轮转周期: {log_rotation}")
-    logger.debug(f"调试模式: {'开启' if debug_mode else '关闭'}")
-    
-    return logger
+
+        logger.add(sys.stderr, level=log_level, format=console_format, colorize=True)
+
+        # 配置文件输出
+        log_file = log_path / "{time:YYYY-MM-DD}.log"
+        file_format = "{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | {name}:{function}:{line} | {message}"
+
+        logger.add(
+            str(log_file),
+            level=log_level,
+            format=file_format,
+            rotation=log_rotation,
+            retention=f"{log_retention_days} days",
+            encoding="utf-8",
+            compression="zip",
+            enqueue=True,
+            catch=True,
+        )
+
+        logger.info(f"日志系统初始化完成 - 级别: {log_level}")
+        return logger
+
+    except Exception as e:
+        # 如果配置失败，至少保证有基本的控制台输出
+        logger.remove()
+        logger.add(sys.stderr, level="ERROR")
+        logger.error(f"日志系统配置失败: {e}")
+        raise
+
+
+if __name__ == "__main__":
+    """测试日志系统"""
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        try:
+            setup_logger(temp_dir, debug_mode=True)
+
+            logger.debug("这是一条调试日志")
+            logger.info("这是一条信息日志")
+            logger.warning("这是一条警告日志")
+            logger.error("这是一条错误日志")
+            logger.critical("这是一条严重日志")
+
+            # 模拟异常以记录堆栈跟踪信息
+            try:
+                1 / 0
+            except ZeroDivisionError:
+                logger.exception("发生了除零异常")
+
+            print("✅ 日志测试完成")
+
+            logger.remove()
+
+        except Exception as e:
+            print(f"❌ 日志测试失败: {e}")
+            logger.remove()  # 确保清理
+            raise

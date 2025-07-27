@@ -18,7 +18,7 @@ class ConfigManager:
     def __init__(self, custom_app_info=None, custom_default_config=None, custom_system_config=None):
         """
         初始化配置管理器
-        
+
         Args:
             custom_app_info (dict, optional): 自定义应用信息，用于覆盖默认值
             custom_default_config (dict, optional): 自定义默认配置，用于覆盖默认值
@@ -28,15 +28,15 @@ class ConfigManager:
         self.app_info = APP_INFO.copy()
         if custom_app_info:
             self.app_info.update(custom_app_info)
-            
+
         self.default_config = DEFAULT_CONFIG.copy()
         if custom_default_config:
             self._deep_update(self.default_config, custom_default_config)
-            
+
         self.system_config = SYSTEM_CONFIG.copy()
         if custom_system_config:
             self.system_config.update(custom_system_config)
-        
+
         # 设置配置路径
         self.config_dir = os.path.join(os.path.expanduser("~"), self.system_config["config_dir_name"])
         self.log_dir = os.path.join(self.config_dir, self.system_config["log_dir_name"])
@@ -51,7 +51,7 @@ class ConfigManager:
         self.close_to_tray = self.default_config["application"]["close_to_tray"]
         self.theme = self.default_config["application"]["theme"]
         self.check_update_on_start = self.default_config["application"]["check_update_on_start"]
-        
+
         # 确保配置目录存在
         self._ensure_directories()
 
@@ -61,7 +61,7 @@ class ConfigManager:
     def _deep_update(self, d, u):
         """
         递归更新嵌套字典
-        
+
         Args:
             d (dict): 要更新的目标字典
             u (dict): 包含更新值的字典
@@ -162,9 +162,11 @@ class ConfigManager:
                             self.theme = theme_value
                             logger.debug(f"已从配置文件加载主题设置: {self.theme}")
                         else:
-                            logger.warning(f"配置文件中的主题值无效: {theme_value}，使用默认值: {self.default_config['application']['theme']}")
+                            logger.warning(
+                                f"配置文件中的主题值无效: {theme_value}，使用默认值: {self.default_config['application']['theme']}"
+                            )
                             self.theme = self.default_config["application"]["theme"]
-                    
+
                     # 读取启动时检查更新设置
                     if "check_update_on_start" in config_data["application"]:
                         self.check_update_on_start = bool(config_data["application"]["check_update_on_start"])
@@ -224,8 +226,8 @@ class ConfigManager:
                     "auto_start": self.auto_start,
                     "close_to_tray": self.close_to_tray,
                     "theme": self.theme,
-                    "check_update_on_start": self.check_update_on_start
-                }
+                    "check_update_on_start": self.check_update_on_start,
+                },
             }
 
             # 保存到文件
@@ -237,31 +239,31 @@ class ConfigManager:
         except Exception as e:
             logger.error(f"保存配置文件失败: {str(e)}")
             return False
-            
+
     def get_app_name(self):
         """获取应用名称"""
         return self.app_info["name"]
-        
+
     def get_app_version(self):
         """获取应用版本"""
         return self.app_info["version"]
-        
+
     def get_app_author(self):
         """获取应用作者"""
         return self.app_info["author"]
-        
+
     def get_app_description(self):
         """获取应用描述"""
         return self.app_info["description"]
-        
+
     def get_github_repo(self):
         """获取GitHub仓库地址"""
         return self.app_info["github_repo"]
-        
+
     def get_github_api_url(self):
         """获取GitHub API URL"""
         return self.app_info["github_api_url"]
-        
+
     def get_github_releases_url(self):
         """获取GitHub发布页面URL"""
         return self.app_info["github_releases_url"]
