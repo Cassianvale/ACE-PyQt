@@ -14,13 +14,14 @@
 <div align="left">
 
 > _使用 PyQt6 构建的桌面应用程序框架_  
-> _在[ACE-KILLER](https://github.com/Cassianvale/ACE-KILLER)项目基础上进行拆解和开发_  
+> _在[ACE-KILLER](https://github.com/Cassianvale/ACE-KILLER)项目基础上进行拆解和开发_
 
 </div>
 
 </div>
 
 ## 特性
+
 - [x] 配置管理
 - [x] 日志系统
 - [x] Windows 系统通知
@@ -28,14 +29,11 @@
 - [x] 版本更新检查
 - [x] 托盘支持
 - [x] 开机静默自启支持
-- [x] Windows端自动构建和发布
-
-## 基础库
-
+- [x] Windows 端自动构建和发布
 
 ## 运行
 
-1. 创建并激活Python虚拟环境（推荐）  
+1. 创建并激活 Python 虚拟环境（推荐）
 
    ```bash
    python -m venv venv
@@ -45,19 +43,20 @@
    source venv/bin/activate
    ```
 
-2. 安装依赖  
+2. 安装依赖
 
    ```bash
    pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
    ```
 
-3. 打包测试 
-> 请勿将 pyinstaller --onefile 打包用于正式环境
+3. 打包测试
+
+   > 请勿将 pyinstaller --onefile 打包用于正式环境
+
    ```python
    pyinstaller --noconsole  --add-data "assets/icon/*;assets/icon" --onefile main.py
    ```
 
-4. 配置环境变量  
+4. 配置环境变量
 
-   - 打开并根据实际需求修改 `app_config.py` 配置文件中的相关参数  
-  
+   - 打开并根据实际需求修改 `app_config.py` 配置文件中的相关参数
