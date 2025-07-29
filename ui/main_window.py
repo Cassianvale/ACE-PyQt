@@ -92,7 +92,7 @@ class MainWindow(QWidget):
     def _setup_ui(self):
         """设置用户界面"""
         self.setWindowTitle(self.app_name)
-        self.setMinimumSize(600, 800)
+        self.setMinimumSize(700, 800)
 
         # 设置无边框窗口
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowSystemMenuHint)
@@ -105,8 +105,8 @@ class MainWindow(QWidget):
         # 使用UI管理器设置布局
         self.ui_manager.setup_main_layout()
 
-        # 创建设置选项卡
-        self.ui_manager.create_settings_tab()
+        # 创建所有选项卡
+        self.ui_manager.create_all_tabs()
 
     def _setup_tray(self):
         """设置系统托盘"""

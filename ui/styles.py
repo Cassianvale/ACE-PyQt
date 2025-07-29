@@ -11,159 +11,159 @@ from utils.logger import logger
 
 class AntColors:
     """Ant Design 颜色系统 - 浅色主题"""
-    
+
     # 主色系
-    PRIMARY_1 = "#e6f7ff"       # 最浅蓝
-    PRIMARY_2 = "#bae7ff"       # 浅蓝
-    PRIMARY_3 = "#91d5ff"       # 较浅蓝
-    PRIMARY_4 = "#69c0ff"       # 中浅蓝
-    PRIMARY_5 = "#40a9ff"       # 中蓝
-    PRIMARY_6 = "#1890ff"       # 主蓝色
-    PRIMARY_7 = "#096dd9"       # 中深蓝
-    PRIMARY_8 = "#0050b3"       # 深蓝
-    PRIMARY_9 = "#003a8c"       # 较深蓝
-    PRIMARY_10 = "#002766"      # 最深蓝
-    
+    PRIMARY_1 = "#e6f7ff"  # 最浅蓝
+    PRIMARY_2 = "#bae7ff"  # 浅蓝
+    PRIMARY_3 = "#91d5ff"  # 较浅蓝
+    PRIMARY_4 = "#69c0ff"  # 中浅蓝
+    PRIMARY_5 = "#40a9ff"  # 中蓝
+    PRIMARY_6 = "#1890ff"  # 主蓝色
+    PRIMARY_7 = "#096dd9"  # 中深蓝
+    PRIMARY_8 = "#0050b3"  # 深蓝
+    PRIMARY_9 = "#003a8c"  # 较深蓝
+    PRIMARY_10 = "#002766"  # 最深蓝
+
     # 成功色系
-    SUCCESS_1 = "#f6ffed"       # 最浅绿
-    SUCCESS_2 = "#d9f7be"       # 浅绿
-    SUCCESS_3 = "#b7eb8f"       # 较浅绿
-    SUCCESS_4 = "#95de64"       # 中浅绿
-    SUCCESS_5 = "#73d13d"       # 中绿
-    SUCCESS_6 = "#52c41a"       # 主绿色
-    SUCCESS_7 = "#389e0d"       # 中深绿
-    SUCCESS_8 = "#237804"       # 深绿
-    SUCCESS_9 = "#135200"       # 较深绿
-    SUCCESS_10 = "#092b00"      # 最深绿
-    
+    SUCCESS_1 = "#f6ffed"  # 最浅绿
+    SUCCESS_2 = "#d9f7be"  # 浅绿
+    SUCCESS_3 = "#b7eb8f"  # 较浅绿
+    SUCCESS_4 = "#95de64"  # 中浅绿
+    SUCCESS_5 = "#73d13d"  # 中绿
+    SUCCESS_6 = "#52c41a"  # 主绿色
+    SUCCESS_7 = "#389e0d"  # 中深绿
+    SUCCESS_8 = "#237804"  # 深绿
+    SUCCESS_9 = "#135200"  # 较深绿
+    SUCCESS_10 = "#092b00"  # 最深绿
+
     # 警告色系
-    WARNING_1 = "#fffbe6"       # 最浅橙
-    WARNING_2 = "#fff1b8"       # 浅橙
-    WARNING_3 = "#ffe58f"       # 较浅橙
-    WARNING_4 = "#ffd666"       # 中浅橙
-    WARNING_5 = "#ffc53d"       # 中橙
-    WARNING_6 = "#faad14"       # 主橙色
-    WARNING_7 = "#d48806"       # 中深橙
-    WARNING_8 = "#ad6800"       # 深橙
-    WARNING_9 = "#874d00"       # 较深橙
-    WARNING_10 = "#613400"      # 最深橙
-    
+    WARNING_1 = "#fffbe6"  # 最浅橙
+    WARNING_2 = "#fff1b8"  # 浅橙
+    WARNING_3 = "#ffe58f"  # 较浅橙
+    WARNING_4 = "#ffd666"  # 中浅橙
+    WARNING_5 = "#ffc53d"  # 中橙
+    WARNING_6 = "#faad14"  # 主橙色
+    WARNING_7 = "#d48806"  # 中深橙
+    WARNING_8 = "#ad6800"  # 深橙
+    WARNING_9 = "#874d00"  # 较深橙
+    WARNING_10 = "#613400"  # 最深橙
+
     # 错误色系
-    ERROR_1 = "#fff2f0"         # 最浅红
-    ERROR_2 = "#ffccc7"         # 浅红
-    ERROR_3 = "#ffa39e"         # 较浅红
-    ERROR_4 = "#ff7875"         # 中浅红
-    ERROR_5 = "#ff4d4f"         # 中红
-    ERROR_6 = "#f5222d"         # 主红色
-    ERROR_7 = "#cf1322"         # 中深红
-    ERROR_8 = "#a8071a"         # 深红
-    ERROR_9 = "#820014"         # 较深红
-    ERROR_10 = "#5c0011"        # 最深红
-    
+    ERROR_1 = "#fff2f0"  # 最浅红
+    ERROR_2 = "#ffccc7"  # 浅红
+    ERROR_3 = "#ffa39e"  # 较浅红
+    ERROR_4 = "#ff7875"  # 中浅红
+    ERROR_5 = "#ff4d4f"  # 中红
+    ERROR_6 = "#f5222d"  # 主红色
+    ERROR_7 = "#cf1322"  # 中深红
+    ERROR_8 = "#a8071a"  # 深红
+    ERROR_9 = "#820014"  # 较深红
+    ERROR_10 = "#5c0011"  # 最深红
+
     # 中性色系
-    GRAY_1 = "#ffffff"          # 白色
-    GRAY_2 = "#fafafa"          # 最浅灰
-    GRAY_3 = "#f5f5f5"          # 浅灰
-    GRAY_4 = "#f0f0f0"          # 较浅灰
-    GRAY_5 = "#d9d9d9"          # 中浅灰
-    GRAY_6 = "#bfbfbf"          # 中灰
-    GRAY_7 = "#8c8c8c"          # 中深灰
-    GRAY_8 = "#595959"          # 深灰
-    GRAY_9 = "#434343"          # 较深灰
-    GRAY_10 = "#262626"         # 最深灰
-    GRAY_11 = "#1f1f1f"         # 近黑
-    GRAY_12 = "#141414"         # 黑色
-    GRAY_13 = "#000000"         # 纯黑
+    GRAY_1 = "#ffffff"  # 白色
+    GRAY_2 = "#fafafa"  # 最浅灰
+    GRAY_3 = "#f5f5f5"  # 浅灰
+    GRAY_4 = "#f0f0f0"  # 较浅灰
+    GRAY_5 = "#d9d9d9"  # 中浅灰
+    GRAY_6 = "#bfbfbf"  # 中灰
+    GRAY_7 = "#8c8c8c"  # 中深灰
+    GRAY_8 = "#595959"  # 深灰
+    GRAY_9 = "#434343"  # 较深灰
+    GRAY_10 = "#262626"  # 最深灰
+    GRAY_11 = "#1f1f1f"  # 近黑
+    GRAY_12 = "#141414"  # 黑色
+    GRAY_13 = "#000000"  # 纯黑
 
 
 class AntColorsDark:
     """Ant Design 颜色系统 - 深色主题"""
-    
+
     # 主色系 (保持相对一致，稍微调亮)
-    PRIMARY_1 = "#111b26"       # 最深蓝背景
-    PRIMARY_2 = "#112545"       # 深蓝背景
-    PRIMARY_3 = "#15325b"       # 较深蓝背景
-    PRIMARY_4 = "#1554ad"       # 中深蓝
-    PRIMARY_5 = "#1668dc"       # 中蓝
-    PRIMARY_6 = "#1890ff"       # 主蓝色 (保持)
-    PRIMARY_7 = "#40a9ff"       # 较亮蓝
-    PRIMARY_8 = "#69c0ff"       # 亮蓝
-    PRIMARY_9 = "#91d5ff"       # 很亮蓝
-    PRIMARY_10 = "#bae7ff"      # 最亮蓝
-    
+    PRIMARY_1 = "#111b26"  # 最深蓝背景
+    PRIMARY_2 = "#112545"  # 深蓝背景
+    PRIMARY_3 = "#15325b"  # 较深蓝背景
+    PRIMARY_4 = "#1554ad"  # 中深蓝
+    PRIMARY_5 = "#1668dc"  # 中蓝
+    PRIMARY_6 = "#1890ff"  # 主蓝色 (保持)
+    PRIMARY_7 = "#40a9ff"  # 较亮蓝
+    PRIMARY_8 = "#69c0ff"  # 亮蓝
+    PRIMARY_9 = "#91d5ff"  # 很亮蓝
+    PRIMARY_10 = "#bae7ff"  # 最亮蓝
+
     # 成功色系
-    SUCCESS_1 = "#162312"       # 最深绿背景
-    SUCCESS_2 = "#1b2618"       # 深绿背景
-    SUCCESS_3 = "#274b32"       # 较深绿背景
-    SUCCESS_4 = "#389e0d"       # 中深绿
-    SUCCESS_5 = "#52c41a"       # 主绿色 (保持)
-    SUCCESS_6 = "#73d13d"       # 较亮绿
-    SUCCESS_7 = "#95de64"       # 亮绿
-    SUCCESS_8 = "#b7eb8f"       # 很亮绿
-    SUCCESS_9 = "#d9f7be"       # 最亮绿
-    SUCCESS_10 = "#f6ffed"      # 绿色高亮
-    
+    SUCCESS_1 = "#162312"  # 最深绿背景
+    SUCCESS_2 = "#1b2618"  # 深绿背景
+    SUCCESS_3 = "#274b32"  # 较深绿背景
+    SUCCESS_4 = "#389e0d"  # 中深绿
+    SUCCESS_5 = "#52c41a"  # 主绿色 (保持)
+    SUCCESS_6 = "#73d13d"  # 较亮绿
+    SUCCESS_7 = "#95de64"  # 亮绿
+    SUCCESS_8 = "#b7eb8f"  # 很亮绿
+    SUCCESS_9 = "#d9f7be"  # 最亮绿
+    SUCCESS_10 = "#f6ffed"  # 绿色高亮
+
     # 警告色系
-    WARNING_1 = "#2b1d11"       # 最深橙背景
-    WARNING_2 = "#342209"       # 深橙背景
-    WARNING_3 = "#593716"       # 较深橙背景
-    WARNING_4 = "#ad6800"       # 中深橙
-    WARNING_5 = "#d48806"       # 中橙
-    WARNING_6 = "#faad14"       # 主橙色 (保持)
-    WARNING_7 = "#ffc53d"       # 较亮橙
-    WARNING_8 = "#ffd666"       # 亮橙
-    WARNING_9 = "#ffe58f"       # 很亮橙
-    WARNING_10 = "#fff1b8"      # 最亮橙
-    
+    WARNING_1 = "#2b1d11"  # 最深橙背景
+    WARNING_2 = "#342209"  # 深橙背景
+    WARNING_3 = "#593716"  # 较深橙背景
+    WARNING_4 = "#ad6800"  # 中深橙
+    WARNING_5 = "#d48806"  # 中橙
+    WARNING_6 = "#faad14"  # 主橙色 (保持)
+    WARNING_7 = "#ffc53d"  # 较亮橙
+    WARNING_8 = "#ffd666"  # 亮橙
+    WARNING_9 = "#ffe58f"  # 很亮橙
+    WARNING_10 = "#fff1b8"  # 最亮橙
+
     # 错误色系
-    ERROR_1 = "#2a1215"         # 最深红背景
-    ERROR_2 = "#431418"         # 深红背景
-    ERROR_3 = "#58181c"         # 较深红背景
-    ERROR_4 = "#a8071a"         # 中深红
-    ERROR_5 = "#cf1322"         # 中红
-    ERROR_6 = "#f5222d"         # 主红色 (保持)
-    ERROR_7 = "#ff4d4f"         # 较亮红
-    ERROR_8 = "#ff7875"         # 亮红
-    ERROR_9 = "#ffa39e"         # 很亮红
-    ERROR_10 = "#ffccc7"        # 最亮红
-    
+    ERROR_1 = "#2a1215"  # 最深红背景
+    ERROR_2 = "#431418"  # 深红背景
+    ERROR_3 = "#58181c"  # 较深红背景
+    ERROR_4 = "#a8071a"  # 中深红
+    ERROR_5 = "#cf1322"  # 中红
+    ERROR_6 = "#f5222d"  # 主红色 (保持)
+    ERROR_7 = "#ff4d4f"  # 较亮红
+    ERROR_8 = "#ff7875"  # 亮红
+    ERROR_9 = "#ffa39e"  # 很亮红
+    ERROR_10 = "#ffccc7"  # 最亮红
+
     # 中性色系 (反转)
-    GRAY_1 = "#141414"          # 深色背景
-    GRAY_2 = "#1f1f1f"          # 较深背景
-    GRAY_3 = "#262626"          # 中深背景
-    GRAY_4 = "#434343"          # 较浅背景
-    GRAY_5 = "#595959"          # 中浅灰
-    GRAY_6 = "#8c8c8c"          # 中灰
-    GRAY_7 = "#bfbfbf"          # 中亮灰
-    GRAY_8 = "#d9d9d9"          # 亮灰
-    GRAY_9 = "#f0f0f0"          # 很亮灰
-    GRAY_10 = "#f5f5f5"         # 最亮灰
-    GRAY_11 = "#fafafa"         # 近白
-    GRAY_12 = "#ffffff"         # 白色
-    GRAY_13 = "#ffffff"         # 纯白
+    GRAY_1 = "#141414"  # 深色背景
+    GRAY_2 = "#1f1f1f"  # 较深背景
+    GRAY_3 = "#262626"  # 中深背景
+    GRAY_4 = "#434343"  # 较浅背景
+    GRAY_5 = "#595959"  # 中浅灰
+    GRAY_6 = "#8c8c8c"  # 中灰
+    GRAY_7 = "#bfbfbf"  # 中亮灰
+    GRAY_8 = "#d9d9d9"  # 亮灰
+    GRAY_9 = "#f0f0f0"  # 很亮灰
+    GRAY_10 = "#f5f5f5"  # 最亮灰
+    GRAY_11 = "#fafafa"  # 近白
+    GRAY_12 = "#ffffff"  # 白色
+    GRAY_13 = "#ffffff"  # 纯白
 
 
 class ThemeManager(QObject):
     """主题管理器"""
-    
+
     # 主题切换信号
     theme_changed = pyqtSignal(str)  # 发送新主题名称
-    
+
     def __init__(self):
         super().__init__()
         self._current_theme = "light"
         self._light_stylesheet = None
         self._dark_stylesheet = None
         self._generate_stylesheets()
-    
+
     def _generate_stylesheets(self):
         """预生成浅色和深色两套完整样式表"""
         # 生成浅色主题样式表
         self._light_stylesheet = self._build_complete_stylesheet(AntColors)
-        
+
         # 生成深色主题样式表
         self._dark_stylesheet = self._build_complete_stylesheet(AntColorsDark)
-    
+
     def _build_complete_stylesheet(self, colors):
         """构建完整的样式表"""
         return f"""
@@ -536,17 +536,19 @@ class ThemeManager(QObject):
         }}
         
         /* === 选项卡样式 === */
-        /* 选项卡容器面板 - 关键的圆角处理 */
+        /* 选项卡容器面板 */
         QTabWidget::pane {{
             border: 1px solid {colors.GRAY_4};
-            background-color: {colors.GRAY_1};
-            /* 面板的圆角处理：左上角需要根据选中的标签位置动态处理 */
-            border-top-left-radius: 0px;   /* 如果第一个标签被选中，这里需要是0 */
-            border-top-right-radius: 6px;  /* 右上角始终有圆角 */
-            border-bottom-left-radius: 6px; /* 左下角圆角 */
-            border-bottom-right-radius: 6px; /* 右下角圆角 */
-            margin-top: -1px; /* 与选中标签无缝连接 */
             padding: 8px;
+        }}
+
+        /* 右侧内容样式 */
+        QTabWidget[tabPosition="West"]::pane {{
+            border: 1px solid {colors.GRAY_4};
+            background-color: {colors.GRAY_1};
+            border-radius: 8px;
+            margin-left: 0px;
+            padding: 16px;
         }}
         
         /* 选项卡标签样式 */
@@ -557,16 +559,10 @@ class ThemeManager(QObject):
             margin-right: 0px; /* 去掉标签间距 */
             margin-bottom: 0px;
             border: 1px solid {colors.GRAY_4};
-            border-bottom: none; /* 底部无边框，与面板融合 */
             font-size: 12px;
             font-weight: 500;
             min-width: 80px;
             min-height: 20px;
-            /* 默认不显示圆角 */
-            border-top-left-radius: 0px;
-            border-top-right-radius: 0px;
-            border-bottom-left-radius: 0px;
-            border-bottom-right-radius: 0px;
         }}
         
         /* 选中的标签 */
@@ -574,90 +570,45 @@ class ThemeManager(QObject):
             background-color: {colors.GRAY_1}; /* 与面板颜色一致 */
             color: {colors.PRIMARY_6};
             border-color: {colors.GRAY_4};
-            border-bottom-color: {colors.GRAY_1}; /* 底部边框与面板颜色一致，实现无缝连接 */
-            margin-bottom: -1px; /* 向下延伸1px，确保完全覆盖面板边框 */
         }}
         
-        /* 第一个标签被选中时的特殊处理 */
-        QTabBar::tab:selected:first {{
-            border-top-left-radius: 6px; /* 左上角圆角 */
-            border-left: 1px solid {colors.GRAY_4}; /* 恢复左边框 */
+        /* === 左侧选项卡专用样式 === */
+        QTabWidget[tabPosition="West"] QTabBar::tab {{
+            background-color: transparent;
+            color: {colors.GRAY_9};
+            padding: 16px 12px;
+            margin-bottom: 2px;
+            margin-right: 0px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            min-width: 120px;
+            min-height: 48px;
+            text-align: left;
         }}
-        
-        /* 最后一个标签被选中时的特殊处理 */
-        QTabBar::tab:selected:last {{
-            border-top-right-radius: 6px; /* 右上角圆角 */
-            border-right: 1px solid {colors.GRAY_4}; /* 恢复右边框 */
-        }}
-        
-        /* 未选中标签的悬停效果 */
-        QTabBar::tab:hover:!selected {{
+
+        /* 左侧选项卡悬浮效果 */
+        QTabWidget[tabPosition="West"] QTabBar::tab:hover {{
             background-color: {colors.GRAY_3};
             color: {colors.GRAY_9};
+        }}
+
+        /* 左侧选项卡选中状态 */
+        QTabWidget[tabPosition="West"] QTabBar::tab:selected {{
+            background-color: {colors.PRIMARY_1};
+            color: {colors.PRIMARY_6};
+            border: 1px solid {colors.PRIMARY_3};
+            font-weight: 600;
+        }}
+
+        /* 左侧选项卡选中状态悬浮效果 */
+        QTabWidget[tabPosition="West"] QTabBar::tab:selected:hover {{
+            background-color: {colors.PRIMARY_2};
+            color: {colors.PRIMARY_7};
             border-color: {colors.PRIMARY_4};
         }}
-        
-        /* 第一个标签悬停时的特殊处理 */
-        QTabBar::tab:hover:!selected:first {{
-            border-left: 1px solid {colors.PRIMARY_4}; /* 恢复左边框 */
-        }}
-        
-        /* 最后一个标签悬停时的特殊处理 */
-        QTabBar::tab:hover:!selected:last {{
-            border-right: 1px solid {colors.PRIMARY_4}; /* 恢复右边框 */
-        }}
-        
-        /* 第一个标签的特殊样式 */
-        QTabBar::tab:first {{
-            margin-left: 0px; /* 第一个标签左边距为0 */
-            border-top-left-radius: 6px; /* 只有左上角圆角 */
-            border-left: 1px solid {colors.GRAY_4}; /* 恢复左边框 */
-        }}
-        
-        /* 最后一个标签的特殊样式 */
-        QTabBar::tab:last {{
-            margin-right: 0px; /* 最后一个标签右边距为0 */
-            border-top-right-radius: 6px; /* 只有右上角圆角 */
-            border-right: 1px solid {colors.GRAY_4}; /* 恢复右边框 */
-        }}
-        
-        /* 只有一个标签时的特殊处理 */
-        QTabBar::tab:only-one {{
-            border-top-left-radius: 6px; /* 左上角圆角 */
-            border-top-right-radius: 6px; /* 右上角圆角 */
-            border-left: 1px solid {colors.GRAY_4}; /* 左边框 */
-            border-right: 1px solid {colors.GRAY_4}; /* 右边框 */
-        }}
-        
-        /* 选项卡在不同位置时的圆角处理 */
-        QTabWidget[tabPosition="North"] QTabWidget::pane {{
-            border-top-left-radius: 0px;
-            border-top-right-radius: 6px;
-            border-bottom-left-radius: 6px;
-            border-bottom-right-radius: 6px;
-        }}
-        
-        QTabWidget[tabPosition="South"] QTabWidget::pane {{
-            border-top-left-radius: 6px;
-            border-top-right-radius: 6px;
-            border-bottom-left-radius: 0px;
-            border-bottom-right-radius: 6px;
-        }}
-        
-        QTabWidget[tabPosition="West"] QTabWidget::pane {{
-            border-top-left-radius: 0px;
-            border-top-right-radius: 6px;
-            border-bottom-left-radius: 0px;
-            border-bottom-right-radius: 6px;
-        }}
-        
-        QTabWidget[tabPosition="East"] QTabWidget::pane {{
-            border-top-left-radius: 6px;
-            border-top-right-radius: 0px;
-            border-bottom-left-radius: 6px;
-            border-bottom-right-radius: 0px;
-        }}
-        
+
         /* 禁用状态的标签 */
         QTabBar::tab:disabled {{
             background-color: {colors.GRAY_3};
@@ -924,27 +875,27 @@ class ThemeManager(QObject):
             font-size: 12px;
         }}
         """
-    
+
     def set_theme(self, theme: str):
         """设置主题并发送信号"""
         if theme != self._current_theme:
             self._current_theme = theme
             self.theme_changed.emit(theme)
-    
+
     def get_current_theme(self) -> str:
         """获取当前主题"""
         return self._current_theme
-    
+
     def get_stylesheet(self, theme: str = None) -> str:
         """获取指定主题的样式表"""
         if theme is None:
             theme = self._current_theme
-        
+
         if theme == "dark":
             return self._dark_stylesheet
         else:
             return self._light_stylesheet
-    
+
     def is_dark_theme(self, theme: str = None) -> bool:
         """判断是否为深色主题"""
         if theme is None:
@@ -958,37 +909,37 @@ theme_manager = ThemeManager()
 
 class StyleHelper:
     """样式辅助类"""
-    
+
     @staticmethod
     def set_frameless_window_properties(window):
         """设置无边框窗口属性
-        
+
         Args:
             window: QWidget实例
         """
         try:
             # 设置主窗口属性
             window.setProperty("windowType", "frameless")
-            
+
             # 刷新样式
             window.style().unpolish(window)
             window.style().polish(window)
         except Exception as e:
             logger.error(f"设置无边框窗口属性失败: {e}")
-    
+
     @staticmethod
     def set_tab_page_transparent(tab_widget):
         """设置选项卡页面为透明背景
-        
+
         Args:
             tab_widget: QTabWidget实例
         """
         try:
             if tab_widget is None:
                 return
-                
+
             tab_widget.setProperty("windowType", "frameless")
-            
+
             # 为所有选项卡页面设置透明属性
             for i in range(tab_widget.count()):
                 page = tab_widget.widget(i)
@@ -996,16 +947,16 @@ class StyleHelper:
                     page.setProperty("tabPage", "true")
                     page.style().unpolish(page)
                     page.style().polish(page)
-            
+
             tab_widget.style().unpolish(tab_widget)
             tab_widget.style().polish(tab_widget)
         except Exception as e:
             logger.error(f"设置选项卡透明背景失败: {e}")
-    
+
     @staticmethod
     def set_button_type(button, button_type: str):
         """设置按钮类型
-        
+
         Args:
             button: QPushButton实例
             button_type: 按钮类型 ('primary', 'success', 'warning', 'danger', 'default')
@@ -1013,11 +964,11 @@ class StyleHelper:
         button.setProperty("buttonType", button_type)
         button.style().unpolish(button)
         button.style().polish(button)
-    
+
     @staticmethod
     def set_label_type(label, label_type: str):
         """设置标签类型
-        
+
         Args:
             label: QLabel实例
             label_type: 标签类型 ('info', 'success', 'warning', 'error', 'secondary', 'small')
@@ -1025,11 +976,11 @@ class StyleHelper:
         label.setProperty("labelType", label_type)
         label.style().unpolish(label)
         label.style().polish(label)
-    
+
     @staticmethod
     def set_progress_type(progressbar, progress_type: str):
         """设置进度条类型
-        
+
         Args:
             progressbar: QProgressBar实例
             progress_type: 进度条类型 ('memory-low', 'memory-medium', 'memory-high')
@@ -1037,11 +988,11 @@ class StyleHelper:
         progressbar.setProperty("progressType", progress_type)
         progressbar.style().unpolish(progressbar)
         progressbar.style().polish(progressbar)
-    
+
     @staticmethod
     def set_checkbox_style(checkbox, check_style: str = "default"):
         """设置复选框勾选样式
-        
+
         Args:
             checkbox: QCheckBox实例
             check_style: 勾选样式 ('default', 'unicode', 'simple')
@@ -1056,18 +1007,51 @@ class StyleHelper:
         checkbox.style().unpolish(checkbox)
         checkbox.style().polish(checkbox)
 
+    @staticmethod
+    def set_tab_position(tab_widget, position: str):
+        """设置选项卡位置
+
+        Args:
+            tab_widget: QTabWidget实例（包括自定义选项卡组件）
+            position: 选项卡位置 ('North', 'South', 'West', 'East')
+        """
+        try:
+            from PyQt6.QtWidgets import QTabWidget
+
+            position_map = {
+                "North": QTabWidget.TabPosition.North,
+                "South": QTabWidget.TabPosition.South,
+                "West": QTabWidget.TabPosition.West,
+                "East": QTabWidget.TabPosition.East,
+            }
+
+            if position in position_map:
+                tab_widget.setTabPosition(position_map[position])
+                tab_widget.setProperty("tabPosition", position)
+
+                # 如果是自定义选项卡组件，触发重新绘制
+                if hasattr(tab_widget, "tabBar") and tab_widget.tabBar():
+                    tab_widget.tabBar().update()
+
+                tab_widget.style().unpolish(tab_widget)
+                tab_widget.style().polish(tab_widget)
+            else:
+                logger.error(f"无效的选项卡位置: {position}")
+        except Exception as e:
+            logger.error(f"设置选项卡位置失败: {e}")
+
 
 class StatusHTMLGenerator:
     """状态HTML生成器"""
-    
+
     @staticmethod
     def get_html_style(theme: str = None) -> str:
         """获取状态HTML的CSS样式"""
         if theme is None:
             theme = theme_manager.get_current_theme()
-        
+
         colors = AntColorsDark if theme == "dark" else AntColors
-        
+
         return f"""
         <style>
             .card {{
@@ -1125,130 +1109,129 @@ class StatusHTMLGenerator:
 
 class ColorScheme:
     """颜色方案 - 动态获取当前主题颜色"""
-    
+
     @staticmethod
     def _get_colors():
         theme = theme_manager.get_current_theme()
         return AntColorsDark if theme == "dark" else AntColors
-    
+
     @classmethod
     def SUCCESS(cls):
         return cls._get_colors().SUCCESS_6
-    
+
     @classmethod
     def WARNING(cls):
         return cls._get_colors().WARNING_6
-    
+
     @classmethod
     def ERROR(cls):
         return cls._get_colors().ERROR_6
-    
+
     @classmethod
     def NORMAL(cls):
         return cls._get_colors().GRAY_9
-    
+
     @classmethod
     def DISABLED(cls):
         return cls._get_colors().GRAY_6
-    
+
     @classmethod
     def INFO(cls):
         return cls._get_colors().PRIMARY_6
-    
+
     @classmethod
     def PRIMARY(cls):
         return cls._get_colors().PRIMARY_6
-    
+
     @classmethod
     def SUCCESS_BTN(cls):
         return cls._get_colors().SUCCESS_6
-    
+
     @classmethod
     def DANGER(cls):
         return cls._get_colors().ERROR_6
-    
+
     @classmethod
     def WARNING_BTN(cls):
         return cls._get_colors().WARNING_6
-    
+
     @classmethod
     def SECONDARY(cls):
         return cls._get_colors().GRAY_6
-    
+
     @classmethod
     def MEMORY_LOW(cls):
         return cls._get_colors().SUCCESS_6
-    
+
     @classmethod
     def MEMORY_MEDIUM(cls):
         return cls._get_colors().WARNING_6
-    
+
     @classmethod
     def MEMORY_HIGH(cls):
         return cls._get_colors().ERROR_6
-    
+
     @classmethod
     def PROCESS_RUNNING(cls):
         return cls._get_colors().SUCCESS_6
-    
+
     @classmethod
     def PROCESS_SYSTEM(cls):
         return cls._get_colors().GRAY_7
-    
+
     @classmethod
     def PROCESS_USER(cls):
         return cls._get_colors().GRAY_9
-    
+
     @classmethod
     def PROCESS_SYSTEM_USER(cls):
         return cls._get_colors().ERROR_6
-    
+
     @classmethod
     def TEXT_PRIMARY(cls):
         return cls._get_colors().GRAY_9
-    
+
     @classmethod
     def TEXT_SECONDARY(cls):
         return cls._get_colors().GRAY_7
-    
+
     @classmethod
     def TEXT_DISABLED(cls):
         return cls._get_colors().GRAY_6
-    
+
     @classmethod
     def BG_PRIMARY(cls):
         return cls._get_colors().GRAY_1
-    
+
     @classmethod
     def BG_SECONDARY(cls):
         return cls._get_colors().GRAY_2
-    
+
     @classmethod
     def BG_DISABLED(cls):
         return cls._get_colors().GRAY_3
-    
+
     @classmethod
     def BORDER_PRIMARY(cls):
         return cls._get_colors().GRAY_5
-    
+
     @classmethod
     def BORDER_SECONDARY(cls):
         return cls._get_colors().GRAY_4
-    
+
     @classmethod
     def BORDER_LIGHT(cls):
         return cls._get_colors().GRAY_3
 
+
 class StyleApplier:
     """样式应用器"""
-    
+
     @staticmethod
     def apply_ant_design_theme(app):
         """应用Ant Design主题到整个应用"""
         stylesheet = theme_manager.get_stylesheet()
         app.setStyleSheet(stylesheet)
-        
+
         # 连接主题变化信号
-        theme_manager.theme_changed.connect(
-            lambda theme: app.setStyleSheet(theme_manager.get_stylesheet(theme))
-        )
+        theme_manager.theme_changed.connect(lambda theme: app.setStyleSheet(theme_manager.get_stylesheet(theme)))
