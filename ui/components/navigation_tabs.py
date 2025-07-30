@@ -133,8 +133,12 @@ class NavigationButton(QPushButton):
 
     @indicatorPosition.setter
     def indicatorPosition(self, value):
-        self._indicator_position = value
-        self.update()  # 触发重绘
+        if abs(self._indicator_position - value) > 0.01:  # 只有变化足够大时才更新
+            self._indicator_position = value
+            # 使用QTimer.singleShot来避免在paintEvent中直接调用update()
+            from PyQt6.QtCore import QTimer
+
+            QTimer.singleShot(0, self.update)
 
     @pyqtProperty(float)
     def indicatorOpacity(self):
@@ -142,8 +146,14 @@ class NavigationButton(QPushButton):
 
     @indicatorOpacity.setter
     def indicatorOpacity(self, value):
-        self._indicator_opacity = value
-        self.update()  # 触发重绘
+        # 限制透明度范围并检查变化
+        new_value = max(0.0, min(1.0, value))
+        if abs(self._indicator_opacity - new_value) > 0.01:  # 只有变化足够大时才更新
+            self._indicator_opacity = new_value
+            # 使用QTimer.singleShot来避免在paintEvent中直接调用update()
+            from PyQt6.QtCore import QTimer
+
+            QTimer.singleShot(0, self.update)
 
     def setActive(self, active: bool):
         """设置激活状态并触发动画"""
@@ -220,32 +230,55 @@ class NavigationButton(QPushButton):
 
         # 绘制指示器（如果透明度大于0）
         if self._indicator_opacity > 0.0:
-            painter = QPainter(self)
-            painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+            self._draw_indicator()
+
+    def _draw_indicator(self):
+        """绘制指示器的独立方法"""
+        # 检查widget是否有效
+        if not self.isVisible() or self.width() <= 0 or self.height() <= 0:
+            return
+
+        painter = QPainter()
+
+        # 检查是否能成功开始绘制
+        if not painter.begin(self):
+            return  # 如果无法开始绘制，直接返回
+
+        try:
+            # 设置抗锯齿
+            painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
 
             # 获取当前主题颜色
             colors = AntColorsDark if theme_manager.is_dark_theme() else AntColors
 
             # 绘制左侧圆滑指示条
             indicator_width = 4
-            indicator_height = 28
-            indicator_x = self._indicator_position  # 使用动画位置
+            indicator_height = min(28, self.height() - 4)  # 确保指示器不超出按钮高度
+            indicator_x = max(0, min(self._indicator_position, self.width() - indicator_width))  # 限制位置范围
             indicator_y = (self.height() - indicator_height) // 2
 
-            # 设置指示器颜色和画笔
-            indicator_color = QColor(colors.PRIMARY_6)
-            indicator_color.setAlphaF(self._indicator_opacity)  # 使用动画透明度
-            painter.setBrush(indicator_color)
-            painter.setPen(Qt.PenStyle.NoPen)
+            # 只有在有效区域内才绘制
+            if indicator_height > 0 and indicator_x >= 0:
+                # 设置指示器颜色和画笔
+                indicator_color = QColor(colors.PRIMARY_6)
+                indicator_color.setAlphaF(max(0.0, min(1.0, self._indicator_opacity)))  # 限制透明度范围
+                painter.setBrush(indicator_color)
+                painter.setPen(Qt.PenStyle.NoPen)
 
-            # 绘制圆角矩形指示器
-            from PyQt6.QtCore import QRectF
+                # 绘制圆角矩形指示器
+                from PyQt6.QtCore import QRectF
 
-            indicator_rect = QRectF(indicator_x, indicator_y, indicator_width, indicator_height)
-            corner_radius = indicator_width / 2
-            painter.drawRoundedRect(indicator_rect, corner_radius, corner_radius)
+                indicator_rect = QRectF(indicator_x, indicator_y, indicator_width, indicator_height)
+                corner_radius = indicator_width / 2
+                painter.drawRoundedRect(indicator_rect, corner_radius, corner_radius)
 
-            painter.end()
+        except Exception as e:
+            # 如果绘制过程中出现异常，记录但不中断程序
+            print(f"Warning: Error in indicator drawing: {e}")
+        finally:
+            # 确保painter正确结束
+            if painter.isActive():
+                painter.end()
 
 
 class NavigationTabs(QWidget):
@@ -405,12 +438,20 @@ class NavigationTabWidget(QWidget):
 
     @contentOpacity.setter
     def contentOpacity(self, value):
-        self._content_opacity = value
-        # 设置内容区域的透明度效果
-        if not hasattr(self.content_stack, "_opacity_effect"):
-            self.content_stack._opacity_effect = QGraphicsOpacityEffect()
-            self.content_stack.setGraphicsEffect(self.content_stack._opacity_effect)
-        self.content_stack._opacity_effect.setOpacity(value)
+        # 限制透明度范围
+        new_value = max(0.0, min(1.0, value))
+        if abs(self._content_opacity - new_value) > 0.01:  # 只有变化足够大时才更新
+            self._content_opacity = new_value
+            # 设置内容区域的透明度效果
+            if not hasattr(self.content_stack, "_opacity_effect") or self.content_stack._opacity_effect is None:
+                self.content_stack._opacity_effect = QGraphicsOpacityEffect()
+                self.content_stack.setGraphicsEffect(self.content_stack._opacity_effect)
+
+            # 安全地设置透明度
+            try:
+                self.content_stack._opacity_effect.setOpacity(new_value)
+            except Exception as e:
+                print(f"Warning: Error setting content opacity: {e}")
 
     def _on_current_changed(self, index: int):
         """处理当前选项卡改变，带动画效果"""
