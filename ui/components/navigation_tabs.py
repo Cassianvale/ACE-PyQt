@@ -71,61 +71,31 @@ class NavigationButton(QPushButton):
 
     def _update_style(self):
         """更新样式"""
+        # 使用 setProperty 设置按钮状态，让 styles.py 中的样式自动应用
+        if self.is_active:
+            self.setProperty("buttonState", "active")
+        else:
+            self.setProperty("buttonState", "inactive")
+
+        # 刷新样式以应用新的属性
+        self.style().unpolish(self)
+        self.style().polish(self)
+
+        # 更新内部标签的颜色（这些不在全局样式中定义）
         colors = AntColorsDark if theme_manager.is_dark_theme() else AntColors
 
         if self.is_active:
-            # 激活状态样式
-            bg_color = colors.PRIMARY_1
-            text_color = colors.PRIMARY_6
             icon_color = colors.PRIMARY_6
-            border_color = colors.PRIMARY_3
-
-            style = f"""
-                NavigationButton {{
-                    background-color: {bg_color};
-                    color: {text_color};
-                    border: 1px solid {border_color};
-                    border-radius: 8px;
-                    text-align: left;
-                    font-weight: 600;
-                }}
-                NavigationButton:hover {{
-                    background-color: {colors.PRIMARY_2};
-                    border-color: {colors.PRIMARY_4};
-                }}
-                NavigationButton:pressed {{
-                    background-color: {colors.PRIMARY_3};
-                }}
-            """
+            text_color = colors.PRIMARY_6
         else:
-            # 未激活状态样式
-            bg_color = "transparent"
-            text_color = colors.GRAY_9
             icon_color = colors.GRAY_7
+            text_color = colors.GRAY_9
 
-            style = f"""
-                NavigationButton {{
-                    background-color: {bg_color};
-                    color: {text_color};
-                    border: none;
-                    border-radius: 8px;
-                    text-align: left;
-                }}
-                NavigationButton:hover {{
-                    background-color: {colors.GRAY_3};
-                }}
-                NavigationButton:pressed {{
-                    background-color: {colors.GRAY_4};
-                }}
-            """
-
-        self.setStyleSheet(style)
-
-        # 更新图标和文本颜色
+        # 只设置图标和文本的颜色，其他样式由 styles.py 管理
         if hasattr(self, "icon_label"):
             self.icon_label.setStyleSheet(f"color: {icon_color}; font-size: 16px; font-weight: bold;")
         if hasattr(self, "text_label"):
-            self.text_label.setStyleSheet(f"color: {text_color};")
+            self.text_label.setStyleSheet(f"color: {text_color}; ")
 
     def _on_theme_changed(self, theme):
         """主题变化时更新样式"""
@@ -146,8 +116,8 @@ class NavigationTabs(QWidget):
         self._setup_ui()
         self._setup_navigation_items()
 
-        # 设置默认激活项
-        self.setCurrentIndex(0)
+        # 监听主题变化
+        theme_manager.theme_changed.connect(self._on_theme_changed)
 
     def _setup_ui(self):
         """设置UI"""
@@ -167,28 +137,18 @@ class NavigationTabs(QWidget):
         # 设置固定宽度
         self.setFixedWidth(160)
 
-        # 应用背景样式
-        colors = AntColorsDark if theme_manager.is_dark_theme() else AntColors
-        self.setStyleSheet(
-            f"""
-            NavigationTabs {{
-                background-color: {colors.GRAY_1};
-                border-right: 1px solid {colors.GRAY_4};
-            }}
-        """
-        )
+        # 设置导航类型属性，让 styles.py 中的样式自动应用
+        self.setProperty("navType", "vertical")
+
+        # 刷新样式
+        self.style().unpolish(self)
+        self.style().polish(self)
 
     def _setup_navigation_items(self):
         """设置导航项目"""
-        # 导航项目配置
-        nav_items = [("猫咪设置", "🐱"), ("通用设置", "⚙️"), ("模型管理", "🔧")]
-
-        for i, (text, icon) in enumerate(nav_items):
-            button = NavigationButton(text, icon)
-            button.clicked.connect(lambda checked, idx=i: self._on_button_clicked(idx))
-
-            self.buttons.append(button)
-            self.nav_container.addWidget(button)
+        # 移除预设项目，让外部代码通过 addTab() 方法来添加具体的选项卡
+        # 这样避免与 ui_manager.py 中的选项卡定义重复
+        pass
 
     def _on_button_clicked(self, index: int):
         """处理按钮点击"""
@@ -221,6 +181,10 @@ class NavigationTabs(QWidget):
         self.buttons.append(button)
         self.nav_container.addWidget(button)
 
+        # 如果这是第一个选项卡，自动设置为激活状态
+        if len(self.buttons) == 1:
+            self.setCurrentIndex(0)
+
     def setTabText(self, index: int, text: str):
         """设置选项卡文本"""
         if 0 <= index < len(self.buttons):
@@ -232,6 +196,16 @@ class NavigationTabs(QWidget):
             return self.buttons[index].text_label.text()
         return ""
 
+    def _on_theme_changed(self, theme):
+        """主题变化时刷新样式"""
+        # 刷新容器样式
+        self.style().unpolish(self)
+        self.style().polish(self)
+
+        # 刷新所有按钮的样式（按钮有自己的主题变化处理）
+        for button in self.buttons:
+            button._update_style()
+
 
 class NavigationTabWidget(QWidget):
     """完整的导航选项卡组件，包含选项卡和内容区域"""
@@ -242,6 +216,9 @@ class NavigationTabWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self._setup_ui()
+
+        # 监听主题变化
+        theme_manager.theme_changed.connect(self._on_theme_changed)
 
     def _setup_ui(self):
         """设置UI"""
@@ -256,16 +233,12 @@ class NavigationTabWidget(QWidget):
         # 右侧内容区域
         self.content_stack = QStackedWidget()
 
-        # 设置内容区域样式
-        colors = AntColorsDark if theme_manager.is_dark_theme() else AntColors
-        self.content_stack.setStyleSheet(
-            f"""
-            QStackedWidget {{
-                background-color: {colors.GRAY_1};
-                border-radius: 8px;
-            }}
-        """
-        )
+        # 设置内容区域属性，让 styles.py 中的样式自动应用
+        self.content_stack.setProperty("contentType", "navigation")
+
+        # 刷新样式
+        self.content_stack.style().unpolish(self.content_stack)
+        self.content_stack.style().polish(self.content_stack)
 
         layout.addWidget(self.nav_tabs)
         layout.addWidget(self.content_stack, 1)
@@ -297,3 +270,9 @@ class NavigationTabWidget(QWidget):
     def count(self) -> int:
         """获取选项卡数量"""
         return self.content_stack.count()
+
+    def _on_theme_changed(self, theme):
+        """主题变化时刷新样式"""
+        # 刷新内容区域样式
+        self.content_stack.style().unpolish(self.content_stack)
+        self.content_stack.style().polish(self.content_stack)

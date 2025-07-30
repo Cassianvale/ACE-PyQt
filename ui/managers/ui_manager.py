@@ -8,15 +8,14 @@ from PyQt6.QtWidgets import (
     QHBoxLayout,
     QPushButton,
     QLabel,
-    QCheckBox,
     QGroupBox,
-    QTabWidget,
     QWidget,
     QComboBox,
     QFrame,
 )
 from PyQt6.QtCore import Qt
 from ui.styles import StyleHelper
+from ui.components.modern_switch import ModernSwitch
 from utils import get_app_version
 
 
@@ -46,12 +45,10 @@ class UIManager:
         content_layout.setContentsMargins(8, 0, 8, 8)
         main_layout.addWidget(content_widget)
 
-        # 创建选项卡 - 使用自定义选项卡组件支持水平文本
-        from ui.components.custom_tabbar import CustomTabWidget
+        # 创建选项卡 - 使用重构后的导航选项卡组件
+        from ui.components.navigation_tabs import NavigationTabWidget
 
-        self.main_window.tabs = CustomTabWidget()
-        # 设置选项卡位置为左侧
-        StyleHelper.set_tab_position(self.main_window.tabs, "West")
+        self.main_window.tabs = NavigationTabWidget()
         content_layout.addWidget(self.main_window.tabs)
 
         return content_layout
@@ -94,16 +91,27 @@ class UIManager:
         cat_layout.addStretch()
 
         # 添加选项卡
-        self.main_window.tabs.addTab(cat_tab, "🐱 猫咪设置")
+        self.main_window.tabs.addTab(cat_tab, "猫咪设置", "🐱")
 
     def create_general_settings_tab(self):
-        """创建通用设置选项卡（原设置选项卡的重命名版本）"""
-        self.create_settings_tab()
+        """创建通用设置选项卡"""
+        settings_tab = QWidget()
+        settings_layout = QVBoxLayout(settings_tab)
 
-        # 更新选项卡标题
-        tab_count = self.main_window.tabs.count()
-        if tab_count > 0:
-            self.main_window.tabs.setTabText(tab_count - 1, "⚙️ 通用设置")
+        # 创建各个设置组
+        self._create_notification_group(settings_layout)
+        self._create_startup_group(settings_layout)
+        self._create_window_behavior_group(settings_layout)
+        self._create_log_group(settings_layout)
+        self._create_theme_group(settings_layout)
+        self._create_actions_group(settings_layout)
+        self._create_version_group(settings_layout)
+
+        # 添加空白占位
+        settings_layout.addStretch()
+
+        # 添加选项卡
+        self.main_window.tabs.addTab(settings_tab, "通用设置", "⚙️")
 
     def create_model_management_tab(self):
         """创建模型管理选项卡"""
@@ -168,36 +176,23 @@ class UIManager:
         model_layout.addStretch()
 
         # 添加选项卡
-        self.main_window.tabs.addTab(model_tab, "🔧 模型管理")
-
-    def create_settings_tab(self):
-        """创建设置选项卡"""
-        settings_tab = QWidget()
-        settings_layout = QVBoxLayout(settings_tab)
-
-        # 创建各个设置组
-        self._create_notification_group(settings_layout)
-        self._create_startup_group(settings_layout)
-        self._create_window_behavior_group(settings_layout)
-        self._create_log_group(settings_layout)
-        self._create_theme_group(settings_layout)
-        self._create_actions_group(settings_layout)
-        self._create_version_group(settings_layout)
-
-        # 添加空白占位
-        settings_layout.addStretch()
-
-        # 添加选项卡
-        self.main_window.tabs.addTab(settings_tab, "  设置  ")
+        self.main_window.tabs.addTab(model_tab, "模型管理", "🔧")
 
     def _create_notification_group(self, parent_layout):
         """创建通知设置组"""
         notify_group = QGroupBox("通知设置")
         notify_layout = QVBoxLayout()
 
-        self.main_window.notify_checkbox = QCheckBox("启用Windows通知")
-        notify_layout.addWidget(self.main_window.notify_checkbox)
+        # 创建水平布局来放置标签和开关
+        notify_item_layout = QHBoxLayout()
+        notify_label = QLabel("启用Windows通知")
+        self.main_window.notify_checkbox = ModernSwitch()
 
+        notify_item_layout.addWidget(notify_label)
+        notify_item_layout.addStretch()
+        notify_item_layout.addWidget(self.main_window.notify_checkbox)
+
+        notify_layout.addLayout(notify_item_layout)
         notify_group.setLayout(notify_layout)
         parent_layout.addWidget(notify_group)
 
@@ -206,11 +201,25 @@ class UIManager:
         startup_group = QGroupBox("启动设置")
         startup_layout = QVBoxLayout()
 
-        self.main_window.startup_checkbox = QCheckBox("开机自启动")
-        startup_layout.addWidget(self.main_window.startup_checkbox)
+        # 开机自启动设置
+        startup_item_layout = QHBoxLayout()
+        startup_label = QLabel("开机自启动")
+        self.main_window.startup_checkbox = ModernSwitch()
 
-        self.main_window.check_update_on_start_checkbox = QCheckBox("启动时检查更新")
-        startup_layout.addWidget(self.main_window.check_update_on_start_checkbox)
+        startup_item_layout.addWidget(startup_label)
+        startup_item_layout.addStretch()
+        startup_item_layout.addWidget(self.main_window.startup_checkbox)
+        startup_layout.addLayout(startup_item_layout)
+
+        # 启动时检查更新设置
+        update_item_layout = QHBoxLayout()
+        update_label = QLabel("启动时检查更新")
+        self.main_window.check_update_on_start_checkbox = ModernSwitch()
+
+        update_item_layout.addWidget(update_label)
+        update_item_layout.addStretch()
+        update_item_layout.addWidget(self.main_window.check_update_on_start_checkbox)
+        startup_layout.addLayout(update_item_layout)
 
         startup_group.setLayout(startup_layout)
         parent_layout.addWidget(startup_group)
@@ -247,8 +256,15 @@ class UIManager:
         log_group = QGroupBox("日志设置")
         log_layout = QVBoxLayout()
 
-        self.main_window.debug_checkbox = QCheckBox("启用调试模式")
-        log_layout.addWidget(self.main_window.debug_checkbox)
+        # 调试模式设置
+        debug_item_layout = QHBoxLayout()
+        debug_label = QLabel("启用调试模式")
+        self.main_window.debug_checkbox = ModernSwitch()
+
+        debug_item_layout.addWidget(debug_label)
+        debug_item_layout.addStretch()
+        debug_item_layout.addWidget(self.main_window.debug_checkbox)
+        log_layout.addLayout(debug_item_layout)
 
         log_group.setLayout(log_layout)
         parent_layout.addWidget(log_group)

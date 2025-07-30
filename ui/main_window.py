@@ -14,11 +14,9 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon
 
-# 使用包导入
 from utils import logger
 from ui.styles import StyleApplier
 
-# 导入管理器和处理器
 from ui.managers import (
     UIManager,
     WindowThemeManager,
@@ -31,7 +29,7 @@ from ui.handlers import EventHandler
 
 
 class MainWindow(QWidget):
-    """重构后的主窗口 - 作为各个管理器的协调者"""
+    """作为各个管理器的协调者"""
 
     def __init__(self, config_manager, icon_path=None, start_minimized=False):
         super().__init__()

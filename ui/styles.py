@@ -353,7 +353,7 @@ class ThemeManager(QObject):
         QComboBox:focus {{
             border-color: {colors.PRIMARY_6};
             outline: none;
-            border-width: 2px;
+            border-width: 1px;
         }}
         
         QComboBox::drop-down {{
@@ -395,39 +395,6 @@ class ThemeManager(QObject):
             color: {colors.PRIMARY_7};
         }}
         
-        /* === 复选框样式 === */
-        QCheckBox {{
-            font-size: 12px;
-            color: {colors.GRAY_9};
-            spacing: 6px;
-        }}
-        
-        QCheckBox::indicator {{
-            width: 14px;
-            height: 14px;
-            border-radius: 2px;
-            border: 1px solid {colors.GRAY_5};
-            background-color: {colors.GRAY_1};
-        }}
-        
-        QCheckBox::indicator:hover {{
-            border-color: {colors.PRIMARY_6};
-        }}
-        
-        QCheckBox::indicator:checked {{
-            background-color: {colors.PRIMARY_6};
-            border-color: {colors.PRIMARY_6};
-            image: url(assets/icon/check.svg);
-        }}
-        
-        QCheckBox::indicator:checked:hover {{
-            background-color: {colors.PRIMARY_5};
-        }}
-        
-        QCheckBox::indicator:disabled {{
-            background-color: {colors.GRAY_3};
-            border-color: {colors.GRAY_4};
-        }}
         
         /* === 单选按钮样式 === */
         QRadioButton {{
@@ -535,78 +502,94 @@ class ThemeManager(QObject):
             color: {colors.GRAY_9};
         }}
         
-        /* === 选项卡样式 === */
-        /* 选项卡容器面板 */
+        /* === 基础选项卡样式 === */
+        /* 选项卡容器面板 - 保留基础样式供其他组件使用 */
         QTabWidget::pane {{
-            border: 1px solid {colors.GRAY_4};
-            padding: 8px;
-        }}
-
-        /* 右侧内容样式 */
-        QTabWidget[tabPosition="West"]::pane {{
             border: 1px solid {colors.GRAY_4};
             background-color: {colors.GRAY_1};
             border-radius: 8px;
-            margin-left: 0px;
-            padding: 16px;
+            padding: 8px;
         }}
-        
-        /* 选项卡标签样式 */
+
+        /* 基础选项卡标签样式 - 仅保留通用样式 */
         QTabBar::tab {{
-            background-color: {colors.GRAY_2};
+            background-color: {colors.GRAY_1};
             color: {colors.GRAY_8};
-            padding: 8px 16px;
-            margin-right: 0px; /* 去掉标签间距 */
-            margin-bottom: 0px;
-            border: 1px solid {colors.GRAY_4};
-            font-size: 12px;
-            font-weight: 500;
-            min-width: 80px;
-            min-height: 20px;
+            border-right: 1px solid {colors.GRAY_4};
         }}
-        
+
         /* 选中的标签 */
         QTabBar::tab:selected {{
-            background-color: {colors.GRAY_1}; /* 与面板颜色一致 */
+            background-color: {colors.GRAY_1};
             color: {colors.PRIMARY_6};
             border-color: {colors.GRAY_4};
         }}
+
+        /* NavigationButton 基础样式 */
         
-        /* === 左侧选项卡专用样式 === */
-        QTabWidget[tabPosition="West"] QTabBar::tab {{
-            background-color: transparent;
-            color: {colors.GRAY_9};
-            padding: 16px 12px;
-            margin-bottom: 2px;
-            margin-right: 0px;
-            border: none;
+        NavigationButton {{
             border-radius: 8px;
-            font-size: 13px;
-            font-weight: 500;
-            min-width: 120px;
-            min-height: 48px;
             text-align: left;
+            font-weight: 500;
+            font-size: 13px;
+            padding: 12px 12px;
+            margin: 2px 0px;
+            min-width: 50px;
+            min-height: 50px;
         }}
 
-        /* 左侧选项卡悬浮效果 */
-        QTabWidget[tabPosition="West"] QTabBar::tab:hover {{
+        /* NavigationButton 未激活状态 */
+        NavigationButton[buttonState="inactive"] {{
+            background-color: transparent;
+            color: {colors.GRAY_9};
+            border: none;
+        }}
+
+        NavigationButton[buttonState="inactive"]:hover {{
             background-color: {colors.GRAY_3};
             color: {colors.GRAY_9};
         }}
 
-        /* 左侧选项卡选中状态 */
-        QTabWidget[tabPosition="West"] QTabBar::tab:selected {{
+        NavigationButton[buttonState="inactive"]:pressed {{
+            background-color: {colors.GRAY_4};
+        }}
+
+        /* NavigationButton 激活状态 */
+        NavigationButton[buttonState="active"] {{
             background-color: {colors.PRIMARY_1};
             color: {colors.PRIMARY_6};
             border: 1px solid {colors.PRIMARY_3};
-            font-weight: 600;
+            font-weight: bold;
         }}
 
-        /* 左侧选项卡选中状态悬浮效果 */
-        QTabWidget[tabPosition="West"] QTabBar::tab:selected:hover {{
+        NavigationButton[buttonState="active"]:hover {{
             background-color: {colors.PRIMARY_2};
-            color: {colors.PRIMARY_7};
+            color: {colors.PRIMARY_6};
             border-color: {colors.PRIMARY_4};
+            font-weight: bold;
+        }}
+
+        NavigationButton[buttonState="active"]:pressed {{
+            background-color: {colors.PRIMARY_3};
+            border-color: {colors.PRIMARY_5};
+            font-weight: bold;
+        }}
+
+        /* NavigationButton 内部标签样式 */
+        NavigationButton QLabel {{
+            background-color: transparent;
+            border: none;
+        }}
+
+        /* NavigationButton 激活状态的内部标签加粗 */
+        NavigationButton[buttonState="active"] QLabel {{
+            font-weight: bold;
+        }}
+
+        /* 导航内容区域样式 */
+        QStackedWidget[contentType="navigation"] {{
+            background-color: {colors.GRAY_1};
+            border-radius: 8px;
         }}
 
         /* 禁用状态的标签 */

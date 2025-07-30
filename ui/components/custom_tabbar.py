@@ -101,9 +101,32 @@ class CustomTabWidget(QTabWidget):
         # 设置自定义选项卡栏
         self.setTabBar(HorizontalTextTabBar())
 
+        # 确保能正确应用 styles.py 中的样式
+        self._apply_initial_styles()
+
+    def _apply_initial_styles(self):
+        """应用初始样式属性"""
+        # 这个方法确保 CustomTabWidget 能正确应用 styles.py 中的样式
+        # 如果需要特定的样式属性，可以在这里设置
+        pass
+
     def setTabPosition(self, position):
         """重写设置选项卡位置方法"""
         super().setTabPosition(position)
+
+        # 设置选项卡位置属性，让 styles.py 中的样式能正确应用
+        position_names = {
+            self.TabPosition.North: "North",
+            self.TabPosition.South: "South",
+            self.TabPosition.West: "West",
+            self.TabPosition.East: "East",
+        }
+        if position in position_names:
+            self.setProperty("tabPosition", position_names[position])
+            # 刷新样式
+            self.style().unpolish(self)
+            self.style().polish(self)
+
         # 刷新选项卡栏以应用新的绘制逻辑
         if self.tabBar():
             self.tabBar().update()
