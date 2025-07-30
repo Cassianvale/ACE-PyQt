@@ -493,24 +493,24 @@ class ThemeManager(QObject):
         }}
 
         /* === 导航按钮样式 === */
-        /* NavigationButton 基础样式 */
-        
+        /* NavigationButton 基础样式 - Fluent Design风格 */
+
         NavigationButton {{
-            border-radius: 8px;
+            border-radius: 6px;
             text-align: left;
             font-weight: 500;
             font-size: 13px;
-            padding: 12px 12px;
-            margin: 2px 0px;
+            padding: 12px 16px 12px 22px;  /* 左侧留出更多指示器空间 */
+            margin: 2px 4px 2px 10px;  /* 左侧留出更多指示器空间 */
             min-width: 50px;
-            min-height: 50px;
+            min-height: 30px;
+            border: none;
         }}
 
         /* NavigationButton 未激活状态 */
         NavigationButton[buttonState="inactive"] {{
             background-color: transparent;
             color: {colors.GRAY_9};
-            border: none;
         }}
 
         NavigationButton[buttonState="inactive"]:hover {{
@@ -522,25 +522,20 @@ class ThemeManager(QObject):
             background-color: {colors.GRAY_4};
         }}
 
-        /* NavigationButton 激活状态 */
+        /* NavigationButton 激活状态 - 更柔和的Fluent风格 */
         NavigationButton[buttonState="active"] {{
             background-color: {colors.PRIMARY_1};
             color: {colors.PRIMARY_6};
-            border: 1px solid {colors.PRIMARY_3};
-            font-weight: bold;
+            font-weight: 600;
         }}
 
         NavigationButton[buttonState="active"]:hover {{
             background-color: {colors.PRIMARY_2};
             color: {colors.PRIMARY_6};
-            border-color: {colors.PRIMARY_4};
-            font-weight: bold;
         }}
 
         NavigationButton[buttonState="active"]:pressed {{
             background-color: {colors.PRIMARY_3};
-            border-color: {colors.PRIMARY_5};
-            font-weight: bold;
         }}
 
         /* NavigationButton 内部标签样式 */
@@ -551,13 +546,50 @@ class ThemeManager(QObject):
 
         /* NavigationButton 激活状态的内部标签加粗 */
         NavigationButton[buttonState="active"] QLabel {{
-            font-weight: bold;
+            font-weight: 600;
+        }}
+
+        /* 导航容器样式 - Fluent Design风格 */
+        QWidget[navType="vertical"] {{
+            background-color: {colors.GRAY_1};
+            border-radius: 8px;
+            border: 1px solid {colors.GRAY_3};
         }}
 
         /* 导航内容区域样式 */
         QStackedWidget[contentType="navigation"] {{
             background-color: {colors.GRAY_1};
             border-radius: 8px;
+            border: 1px solid {colors.GRAY_3};
+        }}
+
+        /* 导航滚动区域样式 */
+        QScrollArea[contentType="navigation"] {{
+            background-color: {colors.GRAY_1};
+            border: none;
+            border-radius: 8px;
+        }}
+
+        QScrollArea[contentType="navigation"] QScrollBar:vertical {{
+            background-color: {colors.GRAY_2};
+            width: 8px;
+            border-radius: 4px;
+            margin: 0px;
+        }}
+
+        QScrollArea[contentType="navigation"] QScrollBar::handle:vertical {{
+            background-color: {colors.GRAY_5};
+            border-radius: 4px;
+            min-height: 20px;
+        }}
+
+        QScrollArea[contentType="navigation"] QScrollBar::handle:vertical:hover {{
+            background-color: {colors.GRAY_6};
+        }}
+
+        QScrollArea[contentType="navigation"] QScrollBar::add-line:vertical,
+        QScrollArea[contentType="navigation"] QScrollBar::sub-line:vertical {{
+            height: 0px;
         }}
 
 

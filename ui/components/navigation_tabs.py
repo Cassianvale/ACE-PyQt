@@ -21,14 +21,33 @@ NavigationTabWidget 结构:
 
 """
 
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QStackedWidget, QFrame, QScrollArea
-from PyQt6.QtCore import Qt, pyqtSignal, QSize
+from PyQt6.QtWidgets import (
+    QWidget,
+    QVBoxLayout,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QStackedWidget,
+    QFrame,
+    QScrollArea,
+    QGraphicsOpacityEffect,
+)
+from PyQt6.QtCore import (
+    Qt,
+    pyqtSignal,
+    QSize,
+    QPropertyAnimation,
+    QEasingCurve,
+    QRect,
+    pyqtProperty,
+    QParallelAnimationGroup,
+)
 from PyQt6.QtGui import QIcon, QPixmap, QPainter, QColor, QFont
 from ui.styles import AntColors, AntColorsDark, theme_manager
 
 
 class NavigationButton(QPushButton):
-    """导航按钮组件"""
+    """导航按钮组件 - 带有Fluent Design风格的指示器和动画效果"""
 
     def __init__(self, text: str, icon_text: str = "", parent=None):
         super().__init__(parent)
@@ -36,12 +55,24 @@ class NavigationButton(QPushButton):
         self.icon_text = icon_text
         self.is_active = False
 
+        # 动画属性
+        self._indicator_position = -6.0  # 指示器X坐标（初始在左边界外）
+        self._indicator_opacity = 0.0  # 指示器透明度
+
+        # 动画对象
+        self._animation_group = None
+        self._indicator_pos_animation = None
+        self._indicator_opacity_animation = None
+
         self.setCheckable(True)
         self.setFixedHeight(56)
         self.setMinimumWidth(140)
 
         # 设置布局
         self._setup_layout()
+
+        # 初始化动画
+        self._setup_animations()
 
         # 应用样式
         self._update_style()
@@ -76,11 +107,79 @@ class NavigationButton(QPushButton):
 
         self.setLayout(layout)
 
+    def _setup_animations(self):
+        """初始化动画"""
+        # 创建动画组
+        self._animation_group = QParallelAnimationGroup(self)
+
+        # 指示器位置动画
+        self._indicator_pos_animation = QPropertyAnimation(self, b"indicatorPosition")
+        self._indicator_pos_animation.setDuration(250)
+        self._indicator_pos_animation.setEasingCurve(QEasingCurve.Type.OutCubic)
+
+        # 指示器透明度动画
+        self._indicator_opacity_animation = QPropertyAnimation(self, b"indicatorOpacity")
+        self._indicator_opacity_animation.setDuration(200)
+        self._indicator_opacity_animation.setEasingCurve(QEasingCurve.Type.OutCubic)
+
+        # 添加到动画组
+        self._animation_group.addAnimation(self._indicator_pos_animation)
+        self._animation_group.addAnimation(self._indicator_opacity_animation)
+
+    # 动画属性定义
+    @pyqtProperty(float)
+    def indicatorPosition(self):
+        return self._indicator_position
+
+    @indicatorPosition.setter
+    def indicatorPosition(self, value):
+        self._indicator_position = value
+        self.update()  # 触发重绘
+
+    @pyqtProperty(float)
+    def indicatorOpacity(self):
+        return self._indicator_opacity
+
+    @indicatorOpacity.setter
+    def indicatorOpacity(self, value):
+        self._indicator_opacity = value
+        self.update()  # 触发重绘
+
     def setActive(self, active: bool):
-        """设置激活状态"""
+        """设置激活状态并触发动画"""
+        if self.is_active == active:
+            return  # 状态没有改变，不需要动画
+
         self.is_active = active
         self.setChecked(active)
         self._update_style()
+
+        # 启动动画
+        self._start_activation_animation(active)
+
+    def _start_activation_animation(self, active: bool):
+        """启动激活/非激活动画"""
+        # 停止当前动画
+        if self._animation_group.state() == QPropertyAnimation.State.Running:
+            self._animation_group.stop()
+
+        if active:
+            # 激活动画：指示器滑入
+            self._indicator_pos_animation.setStartValue(self._indicator_position)
+            self._indicator_pos_animation.setEndValue(1.0)  # 滑入到正确位置
+
+            self._indicator_opacity_animation.setStartValue(self._indicator_opacity)
+            self._indicator_opacity_animation.setEndValue(1.0)  # 完全不透明
+        else:
+            # 非激活动画：指示器滑出
+            self._indicator_pos_animation.setStartValue(self._indicator_position)
+            self._indicator_pos_animation.setEndValue(-6.0)  # 滑出到左边界外
+
+            self._indicator_opacity_animation.setStartValue(self._indicator_opacity)
+            self._indicator_opacity_animation.setEndValue(0.0)  # 完全透明
+
+        # 启动动画组
+        self._animation_group.start()
 
     def _update_style(self):
         """更新样式"""
@@ -113,6 +212,40 @@ class NavigationButton(QPushButton):
     def _on_theme_changed(self, theme):
         """主题变化时更新样式"""
         self._update_style()
+
+    def paintEvent(self, event):
+        """自定义绘制事件 - 添加带动画的Fluent Design风格圆滑指示器"""
+        # 调用父类绘制方法（让CSS样式正常工作）
+        super().paintEvent(event)
+
+        # 绘制指示器（如果透明度大于0）
+        if self._indicator_opacity > 0.0:
+            painter = QPainter(self)
+            painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+            # 获取当前主题颜色
+            colors = AntColorsDark if theme_manager.is_dark_theme() else AntColors
+
+            # 绘制左侧圆滑指示条
+            indicator_width = 4
+            indicator_height = 28
+            indicator_x = self._indicator_position  # 使用动画位置
+            indicator_y = (self.height() - indicator_height) // 2
+
+            # 设置指示器颜色和画笔
+            indicator_color = QColor(colors.PRIMARY_6)
+            indicator_color.setAlphaF(self._indicator_opacity)  # 使用动画透明度
+            painter.setBrush(indicator_color)
+            painter.setPen(Qt.PenStyle.NoPen)
+
+            # 绘制圆角矩形指示器
+            from PyQt6.QtCore import QRectF
+
+            indicator_rect = QRectF(indicator_x, indicator_y, indicator_width, indicator_height)
+            corner_radius = indicator_width / 2
+            painter.drawRoundedRect(indicator_rect, corner_radius, corner_radius)
+
+            painter.end()
 
 
 class NavigationTabs(QWidget):
@@ -214,14 +347,21 @@ class NavigationTabs(QWidget):
 
 
 class NavigationTabWidget(QWidget):
-    """完整的导航选项卡组件，包含选项卡和内容区域"""
+    """完整的导航选项卡组件，包含选项卡和内容区域，支持动画切换"""
 
     # 信号：当前选项卡改变
     currentChanged = pyqtSignal(int)
 
     def __init__(self, parent=None):
         super().__init__(parent)
+
+        # 内容切换动画属性
+        self._content_opacity = 1.0
+        self._content_animation = None
+        self._pending_index = -1  # 待切换的索引
+
         self._setup_ui()
+        self._setup_content_animation()
 
         # 监听主题变化
         theme_manager.theme_changed.connect(self._on_theme_changed)
@@ -251,10 +391,56 @@ class NavigationTabWidget(QWidget):
 
         self.setLayout(layout)
 
+    def _setup_content_animation(self):
+        """设置内容切换动画"""
+        self._content_animation = QPropertyAnimation(self, b"contentOpacity")
+        self._content_animation.setDuration(200)
+        self._content_animation.setEasingCurve(QEasingCurve.Type.OutCubic)
+        self._content_animation.finished.connect(self._on_fade_out_finished)
+
+    # 内容透明度属性
+    @pyqtProperty(float)
+    def contentOpacity(self):
+        return self._content_opacity
+
+    @contentOpacity.setter
+    def contentOpacity(self, value):
+        self._content_opacity = value
+        # 设置内容区域的透明度效果
+        if not hasattr(self.content_stack, "_opacity_effect"):
+            self.content_stack._opacity_effect = QGraphicsOpacityEffect()
+            self.content_stack.setGraphicsEffect(self.content_stack._opacity_effect)
+        self.content_stack._opacity_effect.setOpacity(value)
+
     def _on_current_changed(self, index: int):
-        """处理当前选项卡改变"""
-        self.content_stack.setCurrentIndex(index)
-        self.currentChanged.emit(index)
+        """处理当前选项卡改变，带动画效果"""
+        if index == self.content_stack.currentIndex():
+            return  # 相同索引，不需要切换
+
+        # 保存待切换的索引
+        self._pending_index = index
+
+        # 开始淡出动画
+        if self._content_animation.state() == QPropertyAnimation.State.Running:
+            self._content_animation.stop()
+
+        self._content_animation.setStartValue(self._content_opacity)
+        self._content_animation.setEndValue(0.0)
+        self._content_animation.start()
+
+    def _on_fade_out_finished(self):
+        """淡出动画完成后的回调"""
+        if self._pending_index >= 0:
+            # 切换到新内容
+            self.content_stack.setCurrentIndex(self._pending_index)
+            self.currentChanged.emit(self._pending_index)
+
+            # 开始淡入动画
+            self._content_animation.setStartValue(0.0)
+            self._content_animation.setEndValue(1.0)
+            self._content_animation.start()
+
+            self._pending_index = -1
 
     def addTab(self, widget: QWidget, text: str, icon_text: str = ""):
         """添加选项卡"""
