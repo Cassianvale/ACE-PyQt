@@ -173,8 +173,8 @@ class ThemeManager(QObject):
         }}
 
         /* === 基础组件样式 === */
-        QGroupBox, QTabWidget::pane, QScrollArea, QFrame {{
-            background-color: {colors.GRAY_1};
+        QGroupBox, QScrollArea, QFrame, QWidget {{
+            background-color: transparent;
             color: {colors.GRAY_9};
         }}
         
@@ -183,17 +183,7 @@ class ThemeManager(QObject):
             background-color: transparent;
             color: {colors.GRAY_9};
         }}
-        
-        /* === 普通组件文字颜色 === */
-        QWidget {{
-            color: {colors.GRAY_9};
-        }}
-        
-        /* === 选项卡页面透明背景 === */
-        QWidget[tabPage="true"] {{
-            background-color: transparent;
-        }}
-        
+
         /* === 自定义标题栏 === */
         CustomTitleBar {{
             background-color: {colors.GRAY_1};
@@ -501,30 +491,8 @@ class ThemeManager(QObject):
             background-color: {colors.GRAY_1};
             color: {colors.GRAY_9};
         }}
-        
-        /* === 基础选项卡样式 === */
-        /* 选项卡容器面板 - 保留基础样式供其他组件使用 */
-        QTabWidget::pane {{
-            border: 1px solid {colors.GRAY_4};
-            background-color: {colors.GRAY_1};
-            border-radius: 8px;
-            padding: 8px;
-        }}
 
-        /* 基础选项卡标签样式 - 仅保留通用样式 */
-        QTabBar::tab {{
-            background-color: {colors.GRAY_1};
-            color: {colors.GRAY_8};
-            border-right: 1px solid {colors.GRAY_4};
-        }}
-
-        /* 选中的标签 */
-        QTabBar::tab:selected {{
-            background-color: {colors.GRAY_1};
-            color: {colors.PRIMARY_6};
-            border-color: {colors.GRAY_4};
-        }}
-
+        /* === 导航按钮样式 === */
         /* NavigationButton 基础样式 */
         
         NavigationButton {{
@@ -592,27 +560,10 @@ class ThemeManager(QObject):
             border-radius: 8px;
         }}
 
-        /* 禁用状态的标签 */
-        QTabBar::tab:disabled {{
-            background-color: {colors.GRAY_3};
-            color: {colors.GRAY_6};
-            border-color: {colors.GRAY_4};
-        }}
-        
-        /* 选项卡栏本身的样式 */
-        QTabBar {{
-            background-color: transparent;
-            border: none;
-        }}
-        
-        /* 选项卡内容区域的滚动条 */
-        QTabWidget QScrollArea {{
-            border: none;
-            background-color: transparent;
-        }}
-        
+
         /* === 标签样式 === */
         QLabel {{
+            background-color: transparent;
             color: {colors.GRAY_9};
             font-size: 12px;
             line-height: 1.4;
@@ -911,32 +862,6 @@ class StyleHelper:
             logger.error(f"设置无边框窗口属性失败: {e}")
 
     @staticmethod
-    def set_tab_page_transparent(tab_widget):
-        """设置选项卡页面为透明背景
-
-        Args:
-            tab_widget: QTabWidget实例
-        """
-        try:
-            if tab_widget is None:
-                return
-
-            tab_widget.setProperty("windowType", "frameless")
-
-            # 为所有选项卡页面设置透明属性
-            for i in range(tab_widget.count()):
-                page = tab_widget.widget(i)
-                if page:
-                    page.setProperty("tabPage", "true")
-                    page.style().unpolish(page)
-                    page.style().polish(page)
-
-            tab_widget.style().unpolish(tab_widget)
-            tab_widget.style().polish(tab_widget)
-        except Exception as e:
-            logger.error(f"设置选项卡透明背景失败: {e}")
-
-    @staticmethod
     def set_button_type(button, button_type: str):
         """设置按钮类型
 
@@ -989,39 +914,6 @@ class StyleHelper:
             checkbox.setProperty("checkStyle", None)
         checkbox.style().unpolish(checkbox)
         checkbox.style().polish(checkbox)
-
-    @staticmethod
-    def set_tab_position(tab_widget, position: str):
-        """设置选项卡位置
-
-        Args:
-            tab_widget: QTabWidget实例（包括自定义选项卡组件）
-            position: 选项卡位置 ('North', 'South', 'West', 'East')
-        """
-        try:
-            from PyQt6.QtWidgets import QTabWidget
-
-            position_map = {
-                "North": QTabWidget.TabPosition.North,
-                "South": QTabWidget.TabPosition.South,
-                "West": QTabWidget.TabPosition.West,
-                "East": QTabWidget.TabPosition.East,
-            }
-
-            if position in position_map:
-                tab_widget.setTabPosition(position_map[position])
-                tab_widget.setProperty("tabPosition", position)
-
-                # 如果是自定义选项卡组件，触发重新绘制
-                if hasattr(tab_widget, "tabBar") and tab_widget.tabBar():
-                    tab_widget.tabBar().update()
-
-                tab_widget.style().unpolish(tab_widget)
-                tab_widget.style().polish(tab_widget)
-            else:
-                logger.error(f"无效的选项卡位置: {position}")
-        except Exception as e:
-            logger.error(f"设置选项卡位置失败: {e}")
 
 
 class StatusHTMLGenerator:
@@ -1218,3 +1110,128 @@ class StyleApplier:
 
         # 连接主题变化信号
         theme_manager.theme_changed.connect(lambda theme: app.setStyleSheet(theme_manager.get_stylesheet(theme)))
+
+
+class TitleHelper:
+    """标题样式助手类
+
+    提供创建一致样式标题QLabel的工具方法
+    """
+
+    # 预定义的标题样式
+    STYLES = {
+        "main": {
+            "font_size": "24px",
+            "font_weight": "bold",
+            "margin_bottom": "16px",
+            "color": None,  # 使用主题默认颜色
+        },
+        "section": {"font_size": "18px", "font_weight": "bold", "margin_bottom": "12px", "color": None},
+        "subsection": {"font_size": "16px", "font_weight": "600", "margin_bottom": "8px", "color": None},
+        "card": {"font_size": "14px", "font_weight": "600", "margin_bottom": "0px", "color": None},
+    }
+
+    @classmethod
+    def create_title(cls, text, style_type="section", custom_style=None):
+        """创建标题QLabel
+
+        Args:
+            text (str): 标题文本
+            style_type (str): 样式类型，可选值: "main", "section", "subsection", "card"
+            custom_style (dict): 自定义样式属性，会覆盖预定义样式
+
+        Returns:
+            QLabel: 配置好样式的标题标签
+        """
+        from PyQt6.QtWidgets import QLabel
+
+        label = QLabel(text)
+
+        # 获取基础样式
+        if style_type in cls.STYLES:
+            style = cls.STYLES[style_type].copy()
+        else:
+            style = cls.STYLES["section"].copy()
+
+        # 应用自定义样式
+        if custom_style:
+            style.update(custom_style)
+
+        # 构建样式字符串
+        style_parts = []
+
+        if style.get("font_size"):
+            style_parts.append(f"font-size: {style['font_size']}")
+
+        if style.get("font_weight"):
+            style_parts.append(f"font-weight: {style['font_weight']}")
+
+        if style.get("margin_bottom"):
+            style_parts.append(f"margin-bottom: {style['margin_bottom']}")
+
+        if style.get("margin_top"):
+            style_parts.append(f"margin-top: {style['margin_top']}")
+
+        if style.get("color"):
+            style_parts.append(f"color: {style['color']}")
+
+        if style.get("text_align"):
+            style_parts.append(f"text-align: {style['text_align']}")
+
+        # 应用样式
+        if style_parts:
+            label.setStyleSheet("; ".join(style_parts) + ";")
+
+        return label
+
+    @classmethod
+    def create_main_title(cls, text, custom_style=None):
+        """创建主标题
+
+        Args:
+            text (str): 标题文本
+            custom_style (dict): 自定义样式属性
+
+        Returns:
+            QLabel: 主标题标签
+        """
+        return cls.create_title(text, "main", custom_style)
+
+    @classmethod
+    def create_section_title(cls, text, custom_style=None):
+        """创建章节标题
+
+        Args:
+            text (str): 标题文本
+            custom_style (dict): 自定义样式属性
+
+        Returns:
+            QLabel: 章节标题标签
+        """
+        return cls.create_title(text, "section", custom_style)
+
+    @classmethod
+    def create_subsection_title(cls, text, custom_style=None):
+        """创建子章节标题
+
+        Args:
+            text (str): 标题文本
+            custom_style (dict): 自定义样式属性
+
+        Returns:
+            QLabel: 子章节标题标签
+        """
+        return cls.create_title(text, "subsection", custom_style)
+
+    @classmethod
+    def create_card_title(cls, text, custom_style=None):
+        """创建卡片标题
+
+        Args:
+            text (str): 标题文本
+            custom_style (dict): 自定义样式属性
+
+        Returns:
+            QLabel: 卡片标题标签
+        """
+        return cls.create_title(text, "card", custom_style)

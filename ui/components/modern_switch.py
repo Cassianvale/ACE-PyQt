@@ -5,6 +5,16 @@ from PyQt6.QtWidgets import QAbstractButton
 from PyQt6.QtCore import Qt, QSize, QPropertyAnimation, QEasingCurve, pyqtProperty, pyqtSignal
 from PyQt6.QtGui import QPainter, QColor, QBrush
 
+"""
+信号触发流程
+1.用户点击 → mousePressEvent → mouseReleaseEvent
+2.父类处理点击 → 状态从False变为True（或相反）
+3.自动触发信号：
+    clicked(True/False) - 表示按钮被点击，参数是新的选中状态
+    toggled(True/False) - 表示选中状态发生了切换
+    stateChanged(2/0) - 我们自定义的信号，兼容QCheckBox（2=选中，0=未选中）
+"""
+
 
 class ModernSwitch(QAbstractButton):
 
@@ -110,14 +120,27 @@ class ModernSwitch(QAbstractButton):
     circle_position = pyqtProperty(int, get_circle_position, set_circle_position)
 
     def mousePressEvent(self, event):
-        """重写鼠标按下事件以确保发出 stateChanged 信号"""
+        """重写鼠标按下事件"""
         if event.button() == Qt.MouseButton.LeftButton and self.isEnabled():
-            old_state = self.isChecked()
             super().mousePressEvent(event)
-            # 检查状态是否真的改变了
-            if old_state != self.isChecked():
-                state = Qt.CheckState.Checked.value if self.isChecked() else Qt.CheckState.Unchecked.value
-                self.stateChanged.emit(state)
+        else:
+            super().mousePressEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        """重写鼠标释放事件以确保正确的点击行为"""
+        if event.button() == Qt.MouseButton.LeftButton and self.isEnabled():
+            # 检查鼠标是否在控件范围内
+            if self.rect().contains(event.position().toPoint()):
+                old_state = self.isChecked()
+                super().mouseReleaseEvent(event)
+                # 检查状态是否真的改变了
+                if old_state != self.isChecked():
+                    state = Qt.CheckState.Checked.value if self.isChecked() else Qt.CheckState.Unchecked.value
+                    self.stateChanged.emit(state)
+            else:
+                super().mouseReleaseEvent(event)
+        else:
+            super().mouseReleaseEvent(event)
 
     def keyPressEvent(self, event):
         """重写键盘按下事件以确保发出 stateChanged 信号"""

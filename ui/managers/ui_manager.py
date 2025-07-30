@@ -8,14 +8,14 @@ from PyQt6.QtWidgets import (
     QHBoxLayout,
     QPushButton,
     QLabel,
-    QGroupBox,
     QWidget,
     QComboBox,
     QFrame,
 )
 from PyQt6.QtCore import Qt
-from ui.styles import StyleHelper
+from ui.styles import StyleHelper, TitleHelper
 from ui.components.modern_switch import ModernSwitch
+from ui.components.card_group_box import CardGroupBox
 from utils import get_app_version
 
 
@@ -69,23 +69,29 @@ class UIManager:
         cat_tab = QWidget()
         cat_layout = QVBoxLayout(cat_tab)
 
-        # 标题
-        title_label = QLabel("🐱 猫咪设置")
-        title_label.setStyleSheet("font-size: 18px; font-weight: bold; margin-bottom: 16px;")
+        # 设置布局间距和边距，为卡片样式优化
+        cat_layout.setContentsMargins(16, 16, 16, 16)  # 增加边距
+        cat_layout.setSpacing(12)  # 设置卡片之间的间距
+
+        # 标题 - 使用TitleHelper创建
+        title_label = TitleHelper.create_section_title("🐱 猫咪设置")
         cat_layout.addWidget(title_label)
 
+        # 猫咪配置组标题
+        config_title = TitleHelper.create_card_title("猫咪配置")
+        cat_layout.addWidget(config_title)
+
         # 猫咪配置组
-        cat_config_group = QGroupBox("猫咪配置")
-        cat_config_layout = QVBoxLayout()
+        cat_config_group = CardGroupBox()
+        cat_config_group.setHoverable(False)  # 禁用悬停效果
 
         # 这里可以添加猫咪相关的设置控件
         placeholder_label = QLabel(
             "猫咪设置功能正在开发中...\n\n这里将包含：\n• 猫咪信息管理\n• 喂食提醒设置\n• 健康记录\n• 照片管理"
         )
         placeholder_label.setStyleSheet("color: #666; padding: 20px; text-align: center;")
-        cat_config_layout.addWidget(placeholder_label)
+        cat_config_group.addWidget(placeholder_label)
 
-        cat_config_group.setLayout(cat_config_layout)
         cat_layout.addWidget(cat_config_group)
 
         cat_layout.addStretch()
@@ -97,6 +103,10 @@ class UIManager:
         """创建通用设置选项卡"""
         settings_tab = QWidget()
         settings_layout = QVBoxLayout(settings_tab)
+
+        # 设置布局间距和边距，为卡片样式优化
+        settings_layout.setContentsMargins(16, 16, 16, 16)  # 增加边距
+        settings_layout.setSpacing(12)  # 设置卡片之间的间距
 
         # 创建各个设置组
         self._create_notification_group(settings_layout)
@@ -118,14 +128,21 @@ class UIManager:
         model_tab = QWidget()
         model_layout = QVBoxLayout(model_tab)
 
-        # 标题
-        title_label = QLabel("🔧 模型管理")
-        title_label.setStyleSheet("font-size: 18px; font-weight: bold; margin-bottom: 16px;")
+        # 设置布局间距和边距，为卡片样式优化
+        model_layout.setContentsMargins(16, 16, 16, 16)  # 增加边距
+        model_layout.setSpacing(12)  # 设置卡片之间的间距
+
+        # 标题 - 使用TitleHelper创建
+        title_label = TitleHelper.create_section_title("🔧 模型管理")
         model_layout.addWidget(title_label)
 
+        # 模型列表组标题
+        model_list_title = TitleHelper.create_card_title("已安装的模型")
+        model_layout.addWidget(model_list_title)
+
         # 模型列表组
-        model_list_group = QGroupBox("已安装的模型")
-        model_list_layout = QVBoxLayout()
+        model_list_group = CardGroupBox()
+        model_list_group.setHoverable(False)  # 禁用悬停效果
 
         # 模拟一些模型
         models = [
@@ -152,13 +169,19 @@ class UIManager:
             model_item_layout.addWidget(status_label)
 
             model_frame.setLayout(model_item_layout)
-            model_list_layout.addWidget(model_frame)
+            model_list_group.addWidget(model_frame)
 
-        model_list_group.setLayout(model_list_layout)
         model_layout.addWidget(model_list_group)
 
+        # 操作按钮组标题
+        actions_title = TitleHelper.create_card_title("操作")
+        model_layout.addWidget(actions_title)
+
         # 操作按钮组
-        actions_group = QGroupBox("操作")
+        actions_group = CardGroupBox()
+        actions_group.setHoverable(False)  # 禁用悬停效果
+
+        # 创建水平布局来放置按钮
         actions_layout = QHBoxLayout()
 
         refresh_btn = QPushButton("🔄 刷新模型列表")
@@ -170,7 +193,7 @@ class UIManager:
         actions_layout.addWidget(settings_btn)
         actions_layout.addStretch()
 
-        actions_group.setLayout(actions_layout)
+        actions_group.addLayout(actions_layout)
         model_layout.addWidget(actions_group)
 
         model_layout.addStretch()
@@ -180,8 +203,12 @@ class UIManager:
 
     def _create_notification_group(self, parent_layout):
         """创建通知设置组"""
-        notify_group = QGroupBox("通知设置")
-        notify_layout = QVBoxLayout()
+        # 通知设置组标题
+        notify_title = TitleHelper.create_card_title("通知设置")
+        parent_layout.addWidget(notify_title)
+
+        notify_group = CardGroupBox()
+        notify_group.setHoverable(False)  # 禁用悬停效果
 
         # 创建水平布局来放置标签和开关
         notify_item_layout = QHBoxLayout()
@@ -192,14 +219,17 @@ class UIManager:
         notify_item_layout.addStretch()
         notify_item_layout.addWidget(self.main_window.notify_checkbox)
 
-        notify_layout.addLayout(notify_item_layout)
-        notify_group.setLayout(notify_layout)
+        notify_group.addLayout(notify_item_layout)
         parent_layout.addWidget(notify_group)
 
     def _create_startup_group(self, parent_layout):
         """创建启动设置组"""
-        startup_group = QGroupBox("启动设置")
-        startup_layout = QVBoxLayout()
+        # 启动设置组标题
+        startup_title = TitleHelper.create_card_title("启动设置")
+        parent_layout.addWidget(startup_title)
+
+        startup_group = CardGroupBox()
+        startup_group.setHoverable(False)  # 禁用悬停效果
 
         # 开机自启动设置
         startup_item_layout = QHBoxLayout()
@@ -209,7 +239,7 @@ class UIManager:
         startup_item_layout.addWidget(startup_label)
         startup_item_layout.addStretch()
         startup_item_layout.addWidget(self.main_window.startup_checkbox)
-        startup_layout.addLayout(startup_item_layout)
+        startup_group.addLayout(startup_item_layout)
 
         # 启动时检查更新设置
         update_item_layout = QHBoxLayout()
@@ -219,15 +249,18 @@ class UIManager:
         update_item_layout.addWidget(update_label)
         update_item_layout.addStretch()
         update_item_layout.addWidget(self.main_window.check_update_on_start_checkbox)
-        startup_layout.addLayout(update_item_layout)
+        startup_group.addLayout(update_item_layout)
 
-        startup_group.setLayout(startup_layout)
         parent_layout.addWidget(startup_group)
 
     def _create_window_behavior_group(self, parent_layout):
         """创建窗口行为设置组"""
-        window_group = QGroupBox("窗口行为设置")
-        window_layout = QVBoxLayout()
+        # 窗口行为设置组标题
+        window_title = TitleHelper.create_card_title("窗口行为设置")
+        parent_layout.addWidget(window_title)
+
+        window_group = CardGroupBox()
+        window_group.setHoverable(False)  # 禁用悬停效果
 
         # 关闭行为选择
         close_behavior_layout = QHBoxLayout()
@@ -240,21 +273,24 @@ class UIManager:
         close_behavior_layout.addWidget(self.main_window.close_behavior_combo)
 
         close_behavior_layout.addStretch()
-        window_layout.addLayout(close_behavior_layout)
+        window_group.addLayout(close_behavior_layout)
 
         # 添加说明文本
         close_behavior_info = QLabel("💡 最小化到系统托盘：程序将继续在后台运行\n💡 直接退出程序：完全关闭程序进程")
         close_behavior_info.setWordWrap(True)
         StyleHelper.set_label_type(close_behavior_info, "info")
-        window_layout.addWidget(close_behavior_info)
+        window_group.addWidget(close_behavior_info)
 
-        window_group.setLayout(window_layout)
         parent_layout.addWidget(window_group)
 
     def _create_log_group(self, parent_layout):
         """创建日志设置组"""
-        log_group = QGroupBox("日志设置")
-        log_layout = QVBoxLayout()
+        # 日志设置组标题
+        log_title = TitleHelper.create_card_title("日志设置")
+        parent_layout.addWidget(log_title)
+
+        log_group = CardGroupBox()
+        log_group.setHoverable(False)  # 禁用悬停效果
 
         # 调试模式设置
         debug_item_layout = QHBoxLayout()
@@ -264,15 +300,18 @@ class UIManager:
         debug_item_layout.addWidget(debug_label)
         debug_item_layout.addStretch()
         debug_item_layout.addWidget(self.main_window.debug_checkbox)
-        log_layout.addLayout(debug_item_layout)
+        log_group.addLayout(debug_item_layout)
 
-        log_group.setLayout(log_layout)
         parent_layout.addWidget(log_group)
 
     def _create_theme_group(self, parent_layout):
         """创建主题设置组"""
-        theme_group = QGroupBox("主题设置")
-        theme_layout = QVBoxLayout()
+        # 主题设置组标题
+        theme_title = TitleHelper.create_card_title("主题设置")
+        parent_layout.addWidget(theme_title)
+
+        theme_group = CardGroupBox()
+        theme_group.setHoverable(False)  # 禁用悬停效果
 
         # 主题选择水平布局
         theme_buttons_layout = QHBoxLayout()
@@ -290,13 +329,19 @@ class UIManager:
         self.main_window.dark_theme_btn.setMinimumHeight(32)
         theme_buttons_layout.addWidget(self.main_window.dark_theme_btn)
 
-        theme_layout.addLayout(theme_buttons_layout)
-        theme_group.setLayout(theme_layout)
+        theme_group.addLayout(theme_buttons_layout)
         parent_layout.addWidget(theme_group)
 
     def _create_actions_group(self, parent_layout):
         """创建操作按钮组"""
-        actions_group = QGroupBox("操作")
+        # 操作按钮组标题
+        actions_title = TitleHelper.create_card_title("操作")
+        parent_layout.addWidget(actions_title)
+
+        actions_group = CardGroupBox()
+        actions_group.setHoverable(False)  # 禁用悬停效果
+
+        # 创建水平布局来放置按钮
         actions_layout = QHBoxLayout()
 
         # 打开配置目录按钮
@@ -311,22 +356,25 @@ class UIManager:
         self.main_window.about_btn = QPushButton("关于")
         actions_layout.addWidget(self.main_window.about_btn)
 
-        actions_group.setLayout(actions_layout)
+        actions_group.addLayout(actions_layout)
         parent_layout.addWidget(actions_group)
 
     def _create_version_group(self, parent_layout):
         """创建版本信息组"""
-        version_group = QGroupBox("版本信息")
-        version_layout = QVBoxLayout()
+        # 版本信息组标题
+        version_title = TitleHelper.create_card_title("版本信息")
+        parent_layout.addWidget(version_title)
+
+        version_group = CardGroupBox()
+        version_group.setHoverable(False)  # 禁用悬停效果
 
         # 获取当前版本号
         current_version = get_app_version(self.config_manager)
         self.main_window.version_label = QLabel(f"当前版本: v{current_version}")
         self.main_window.version_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         StyleHelper.set_label_type(self.main_window.version_label, "info")
-        version_layout.addWidget(self.main_window.version_label)
+        version_group.addWidget(self.main_window.version_label)
 
-        version_group.setLayout(version_layout)
         parent_layout.addWidget(version_group)
 
     def setup_button_properties(self, current_theme):

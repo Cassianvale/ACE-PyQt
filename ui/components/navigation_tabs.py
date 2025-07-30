@@ -4,11 +4,24 @@
 """
 导航选项卡组件
 
-专门用于左侧垂直导航的选项卡组件，支持图标和文本显示。
-包含三个预设选项：猫咪设置、通用设置、模型管理。
+专门用于左侧垂直导航的选项卡组件，支持图标和文本显示
+内容区域支持自动滚动，当内容超出可用高度时显示垂直滚动条
+
+NavigationTabWidget 结构:
+├── NavigationTabs   # 左侧导航按钮
+└── QStackedWidget   # 右侧内容区域
+    └── QScrollArea  # 滚动包装器（自动添加）
+        └── QWidget  # 用户内容
+
+特性:
+- 垂直滚动条仅在需要时显示
+- 水平滚动条始终隐藏
+- 保持现有布局和样式
+- 支持主题切换
+
 """
 
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QStackedWidget, QFrame
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QStackedWidget, QFrame, QScrollArea
 from PyQt6.QtCore import Qt, pyqtSignal, QSize
 from PyQt6.QtGui import QIcon, QPixmap, QPainter, QColor, QFont
 from ui.styles import AntColors, AntColorsDark, theme_manager
@@ -114,7 +127,6 @@ class NavigationTabs(QWidget):
         self.buttons = []
 
         self._setup_ui()
-        self._setup_navigation_items()
 
         # 监听主题变化
         theme_manager.theme_changed.connect(self._on_theme_changed)
@@ -143,12 +155,6 @@ class NavigationTabs(QWidget):
         # 刷新样式
         self.style().unpolish(self)
         self.style().polish(self)
-
-    def _setup_navigation_items(self):
-        """设置导航项目"""
-        # 移除预设项目，让外部代码通过 addTab() 方法来添加具体的选项卡
-        # 这样避免与 ui_manager.py 中的选项卡定义重复
-        pass
 
     def _on_button_clicked(self, index: int):
         """处理按钮点击"""
@@ -253,7 +259,23 @@ class NavigationTabWidget(QWidget):
     def addTab(self, widget: QWidget, text: str, icon_text: str = ""):
         """添加选项卡"""
         self.nav_tabs.addTab(text, icon_text)
-        self.content_stack.addWidget(widget)
+
+        # 创建滚动区域包装器
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        scroll_area.setFrameShape(QFrame.Shape.NoFrame)
+        scroll_area.setWidget(widget)
+
+        # 设置滚动区域属性，让 styles.py 中的样式自动应用
+        scroll_area.setProperty("contentType", "navigation")
+
+        # 刷新样式
+        scroll_area.style().unpolish(scroll_area)
+        scroll_area.style().polish(scroll_area)
+
+        self.content_stack.addWidget(scroll_area)
 
     def setCurrentIndex(self, index: int):
         """设置当前选中的索引"""
@@ -265,7 +287,10 @@ class NavigationTabWidget(QWidget):
 
     def widget(self, index: int) -> QWidget:
         """获取指定索引的内容组件"""
-        return self.content_stack.widget(index)
+        scroll_area = self.content_stack.widget(index)
+        if isinstance(scroll_area, QScrollArea):
+            return scroll_area.widget()
+        return scroll_area
 
     def count(self) -> int:
         """获取选项卡数量"""
@@ -276,3 +301,10 @@ class NavigationTabWidget(QWidget):
         # 刷新内容区域样式
         self.content_stack.style().unpolish(self.content_stack)
         self.content_stack.style().polish(self.content_stack)
+
+        # 刷新所有滚动区域的样式
+        for i in range(self.content_stack.count()):
+            scroll_area = self.content_stack.widget(i)
+            if isinstance(scroll_area, QScrollArea):
+                scroll_area.style().unpolish(scroll_area)
+                scroll_area.style().polish(scroll_area)
