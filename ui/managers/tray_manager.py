@@ -158,9 +158,18 @@ class TrayManager:
         return "\n".join(status_lines)
 
     def tray_icon_activated(self, reason):
-        """处理托盘图标激活事件"""
-        if reason == QSystemTrayIcon.ActivationReason.DoubleClick:
-            self.toggle_main_window()
+        """处理托盘图标激活事件(处理 C++ 枚举到 Python 的转换问题)"""
+        try:
+            # 优先使用 value 属性比较，这是最可靠的方法
+            if hasattr(reason, "value"):
+                if reason.value == QSystemTrayIcon.ActivationReason.DoubleClick.value:
+                    self.toggle_main_window()
+            else:
+                # 备用方案：直接比较枚举
+                if reason == QSystemTrayIcon.ActivationReason.DoubleClick:
+                    self.toggle_main_window()
+        except Exception as e:
+            logger.debug(f"托盘图标激活事件处理失败: {e}")
 
     def show_tray_message(self, title, message, icon=QSystemTrayIcon.MessageIcon.Information, timeout=3000):
         """显示托盘通知消息"""
