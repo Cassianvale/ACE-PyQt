@@ -300,7 +300,7 @@ class NavigationTabs(QWidget):
     def _setup_ui(self):
         """设置UI"""
         layout = QVBoxLayout()
-        layout.setContentsMargins(8, 8, 8, 8)
+        layout.setContentsMargins(0, 8, 8, 8)
         layout.setSpacing(4)
 
         # 导航按钮容器
