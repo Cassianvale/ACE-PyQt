@@ -170,6 +170,8 @@ class ThemeManager(QObject):
         /* === 全局样式 === */
         * {{
             font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Segoe UI Variable', 'Microsoft YaHei UI', 'Microsoft YaHei', '微软雅黑', 'PingFang SC', 'Hiragino Sans GB', 'Source Han Sans SC', 'Noto Sans CJK SC', 'WenQuanYi Micro Hei', Ubuntu, Roboto, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 13px;  /* 全局基础字体大小 */
+            font-weight: 400; /* 全局基础字体粗细 */
         }}
 
         /* === 基础组件样式 === */
@@ -194,8 +196,8 @@ class ThemeManager(QObject):
         }}
         
         CustomTitleBar QLabel {{
-            font-size: 14px;
-            font-weight: 600;
+            font-size: 15px;  /* 标题栏字体稍大 */
+            font-weight: 600; /* 保持中等粗细 */
             color: {colors.GRAY_9};
         }}
         
@@ -206,9 +208,9 @@ class ThemeManager(QObject):
             border: 1px solid {colors.PRIMARY_6};
             border-radius: 4px;
             padding: 4px 10px;
-            font-weight: 500;
-            font-size: 12px;
-            min-height: 25px;
+            font-weight: 500; /* 中等粗细，确保可读性 */
+            font-size: 13px;  /* 稍大的字体提高可读性 */
+            min-height: 28px; /* 增加高度以适应更大字体 */
             outline: none;
         }}
         
@@ -284,7 +286,8 @@ class ThemeManager(QObject):
             color: {colors.PRIMARY_7};
             border-color: {colors.PRIMARY_6};
             border-width: 2px;
-            font-weight: 600;
+            font-weight: 600; /* 选中状态保持较粗字体 */
+            font-size: 13px;  /* 与普通按钮保持一致 */
         }}
         
         QPushButton[buttonType="selected"]:hover {{
@@ -303,9 +306,10 @@ class ThemeManager(QObject):
             border: 1px solid {colors.GRAY_5};
             border-radius: 4px;
             padding: 4px 8px;
-            font-size: 12px;
+            font-size: 13px;  /* 与全局基础字体保持一致 */
+            font-weight: 400; /* 正常粗细 */
             color: {colors.GRAY_9};
-            min-height: 26px;
+            min-height: 28px;  /* 增加高度以适应更大字体 */
         }}
         
         QLineEdit:hover {{
@@ -330,10 +334,11 @@ class ThemeManager(QObject):
             border: 1px solid {colors.GRAY_5};
             border-radius: 4px;
             padding: 4px 8px;
-            font-size: 12px;
+            font-size: 13px;  /* 与全局基础字体保持一致 */
+            font-weight: 400; /* 正常粗细 */
             color: {colors.GRAY_9};
             min-width: 100px;
-            min-height: 26px;
+            min-height: 28px;  /* 增加高度以适应更大字体 */
         }}
         
         QComboBox:hover {{
@@ -388,7 +393,8 @@ class ThemeManager(QObject):
         
         /* === 单选按钮样式 === */
         QRadioButton {{
-            font-size: 12px;
+            font-size: 13px;  /* 与全局基础字体保持一致 */
+            font-weight: 400; /* 正常粗细 */
             color: {colors.GRAY_9};
             spacing: 6px;
             background-color: transparent;
@@ -449,9 +455,10 @@ class ThemeManager(QObject):
             border-radius: 3px;
             background-color: {colors.GRAY_3};
             text-align: center;
-            font-size: 11px;
+            font-size: 12px;  /* 稍大的字体提高可读性 */
+            font-weight: 500; /* 中等粗细确保清晰 */
             color: {colors.GRAY_8};
-            max-height: 16px;
+            max-height: 18px;  /* 增加高度以适应更大字体 */
         }}
         
         QProgressBar::chunk {{
@@ -474,8 +481,8 @@ class ThemeManager(QObject):
         
         /* === 分组框样式 === */
         QGroupBox {{
-            font-size: 13px;
-            font-weight: 600;
+            font-size: 14px;  /* 分组框标题稍大 */
+            font-weight: 600; /* 保持较粗字体突出层次 */
             color: {colors.GRAY_9};
             background-color: {colors.GRAY_1};
             border: 1px solid {colors.GRAY_4};
@@ -541,14 +548,14 @@ class ThemeManager(QObject):
         NavigationButton QLabel {{
             background-color: transparent;
             border: none;
-            font-size: 13px;  /* 明确设置字体大小 */
-            font-weight: 500;
+            font-size: 14px;  /* 导航按钮字体稍大提高可读性 */
+            font-weight: 500; /* 中等粗细 */
         }}
 
         /* NavigationButton 激活状态的内部标签加粗 */
         NavigationButton[buttonState="active"] QLabel {{
-            font-weight: 600;
-            font-size: 13px;  /* 确保激活状态也有正确字体大小 */
+            font-weight: 600; /* 激活状态更粗突出当前选择 */
+            font-size: 14px;  /* 与未激活状态保持一致 */
         }}
 
         /* 导航容器样式 - Fluent Design风格 */
@@ -596,8 +603,8 @@ class ThemeManager(QObject):
 
         /* Logo文字样式 */
         QLabel[objectName="logo_text_label"] {{
-            font-size: 14px;
-            font-weight: bold;
+            font-size: 16px;  /* Logo文字稍大突出品牌 */
+            font-weight: 700; /* 更粗的字体突出Logo */
             text-align: center;
             background-color: transparent;
         }}
@@ -607,8 +614,8 @@ class ThemeManager(QObject):
             background-color: {colors.PRIMARY_6};
             color: white;
             border-radius: 8px;  /* 正方形圆角遮罩，与代码中的8px保持一致 */
-            font-size: 24px;
-            font-weight: bold;
+            font-size: 26px;  /* 图标字体稍大 */
+            font-weight: 700; /* 更粗的字体 */
             text-align: center;
             qproperty-alignment: AlignCenter;
         }}
@@ -639,7 +646,8 @@ class ThemeManager(QObject):
         QLabel {{
             background-color: transparent;
             color: {colors.GRAY_9};
-            font-size: 12px;
+            font-size: 13px;  /* 与全局基础字体保持一致 */
+            font-weight: 400; /* 正常粗细 */
             line-height: 1.4;
         }}
         
@@ -686,7 +694,8 @@ class ThemeManager(QObject):
         
         QLabel[labelType="small"] {{
             color: {colors.GRAY_8};
-            font-size: 10px;
+            font-size: 11px;  /* 小标签字体稍大提高可读性 */
+            font-weight: 400; /* 正常粗细 */
             line-height: 1.3;
         }}
         
@@ -696,9 +705,10 @@ class ThemeManager(QObject):
             border: 1px solid {colors.GRAY_5};
             border-radius: 4px;
             padding: 4px 8px;
-            font-size: 12px;
+            font-size: 13px;  /* 与全局基础字体保持一致 */
+            font-weight: 400; /* 正常粗细 */
             color: {colors.GRAY_9};
-            min-height: 26px;
+            min-height: 28px;  /* 增加高度以适应更大字体 */
         }}
         
         QSpinBox:hover {{
@@ -749,7 +759,8 @@ class ThemeManager(QObject):
             border-radius: 6px;
             gridline-color: {colors.GRAY_4};
             selection-background-color: {colors.PRIMARY_1};
-            font-size: 12px;
+            font-size: 13px;  /* 表格内容与全局基础字体保持一致 */
+            font-weight: 400; /* 正常粗细 */
         }}
         
         QTableWidget::item {{
@@ -779,8 +790,8 @@ class ThemeManager(QObject):
             border: none;
             border-right: 1px solid {colors.GRAY_4};
             border-bottom: 1px solid {colors.GRAY_4};
-            font-weight: 600;
-            font-size: 12px;
+            font-weight: 600; /* 表头保持较粗字体突出层次 */
+            font-size: 13px;  /* 与表格内容保持一致 */
         }}
         
         QHeaderView::section:first {{
@@ -880,7 +891,8 @@ class ThemeManager(QObject):
             border: 1px solid {colors.GRAY_8};
             border-radius: 6px;
             padding: 8px;
-            font-size: 12px;
+            font-size: 12px;  /* 工具提示保持较小字体 */
+            font-weight: 400; /* 正常粗细 */
         }}
         """
 
@@ -1011,8 +1023,8 @@ class StatusHTMLGenerator:
                 border: 1px solid {colors.GRAY_4};
             }}
             .section-title {{
-                font-size: 14px;
-                font-weight: 600;
+                font-size: 15px;  /* 状态标题稍大 */
+                font-weight: 600; /* 保持较粗字体 */
                 margin-bottom: 5px;
                 color: {colors.GRAY_10};
                 line-height: 1.5;
