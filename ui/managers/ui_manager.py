@@ -49,6 +49,15 @@ class UIManager:
         from ui.components.navigation_tabs import NavigationTabWidget
 
         self.main_window.tabs = NavigationTabWidget()
+
+        # 设置Logo - 使用favicon.ico
+        import os
+
+        icon_path = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "assets", "icon", "tray.png"
+        )
+        self.main_window.tabs.setLogo(icon_path=icon_path, logo_text=self.main_window.app_name)
+
         content_layout.addWidget(self.main_window.tabs)
 
         return content_layout

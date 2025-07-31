@@ -96,10 +96,7 @@ class NavigationButton(QPushButton):
         # 文本标签
         self.text_label = QLabel(self.text_content)
         self.text_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
-        font = QFont()
-        font.setPointSize(13)
-        font.setWeight(QFont.Weight.Medium)
-        self.text_label.setFont(font)
+        # 字体样式由CSS控制，删除冗余的setFont()调用
 
         layout.addWidget(self.icon_label)
         layout.addWidget(self.text_label)
@@ -213,11 +210,11 @@ class NavigationButton(QPushButton):
             icon_color = colors.GRAY_7
             text_color = colors.GRAY_9
 
-        # 只设置图标和文本的颜色，其他样式由 styles.py 管理
+        # 只设置颜色，字体样式由CSS控制
         if hasattr(self, "icon_label"):
-            self.icon_label.setStyleSheet(f"color: {icon_color}; font-size: 16px; font-weight: bold;")
+            self.icon_label.setStyleSheet(f"color: {icon_color};")
         if hasattr(self, "text_label"):
-            self.text_label.setStyleSheet(f"color: {text_color}; ")
+            self.text_label.setStyleSheet(f"color: {text_color};")
 
     def _on_theme_changed(self, theme):
         """主题变化时更新样式"""
@@ -303,6 +300,11 @@ class NavigationTabs(QWidget):
         layout.setContentsMargins(0, 8, 8, 8)
         layout.setSpacing(4)
 
+        # Logo区域重构 - 分离图标和文字为独立容器
+        self._setup_logo_containers()
+
+        layout.addWidget(self.logo_wrapper)
+
         # 导航按钮容器
         self.nav_container = QVBoxLayout()
         self.nav_container.setSpacing(4)
@@ -321,6 +323,67 @@ class NavigationTabs(QWidget):
         # 刷新样式
         self.style().unpolish(self)
         self.style().polish(self)
+
+    def _setup_logo_containers(self):
+        """设置独立的Logo图标和文字容器"""
+        # 创建Logo总容器（固定高度80px）
+        self.logo_wrapper = QWidget()
+        self.logo_wrapper.setFixedHeight(80)
+        self.logo_wrapper.setObjectName("logo_wrapper")
+
+        # Logo总容器的垂直布局
+        logo_main_layout = QVBoxLayout(self.logo_wrapper)
+        logo_main_layout.setContentsMargins(12, 8, 12, 8)  # 左右12px，上下8px
+        logo_main_layout.setSpacing(8)  # 图标和文字容器之间的间隔
+
+        # === Logo图标独立容器 ===
+        self.logo_icon_container = QWidget()
+        self.logo_icon_container.setFixedHeight(48)  # 固定高度48px
+        self.logo_icon_container.setObjectName("logo_icon_container")
+
+        # Logo图标容器的布局
+        icon_layout = QHBoxLayout(self.logo_icon_container)
+        icon_layout.setContentsMargins(0, 0, 0, 0)
+        icon_layout.setSpacing(0)
+
+        # Logo图标标签
+        self.logo_icon_label = QLabel()
+        self.logo_icon_label.setObjectName("logo_icon_label")
+        self.logo_icon_label.setFixedSize(48, 48)
+        self.logo_icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.logo_icon_label.hide()  # 默认隐藏
+
+        # 将图标添加到图标容器中，水平居中
+        icon_layout.addStretch()
+        icon_layout.addWidget(self.logo_icon_label)
+        icon_layout.addStretch()
+
+        # === Logo文字独立容器 ===
+        self.logo_text_container = QWidget()
+        self.logo_text_container.setMinimumHeight(16)  # 最小高度16px
+        self.logo_text_container.setObjectName("logo_text_container")
+
+        # Logo文字容器的布局
+        text_layout = QHBoxLayout(self.logo_text_container)
+        text_layout.setContentsMargins(0, 0, 0, 0)
+        text_layout.setSpacing(0)
+
+        # Logo文字标签
+        self.logo_text_label = QLabel()
+        self.logo_text_label.setObjectName("logo_text_label")
+        self.logo_text_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.logo_text_label.hide()  # 默认隐藏
+
+        # 将文字添加到文字容器中，水平居中
+        text_layout.addStretch()
+        text_layout.addWidget(self.logo_text_label)
+        text_layout.addStretch()
+
+        # === 将两个独立容器添加到主布局 ===
+        logo_main_layout.addStretch()  # 上方弹性空间
+        logo_main_layout.addWidget(self.logo_icon_container)
+        logo_main_layout.addWidget(self.logo_text_container)
+        logo_main_layout.addStretch()  # 下方弹性空间
 
     def _on_button_clicked(self, index: int):
         """处理按钮点击"""
@@ -368,6 +431,91 @@ class NavigationTabs(QWidget):
             return self.buttons[index].text_label.text()
         return ""
 
+    def set_logo(self, icon_text: str = "", logo_text: str = "", icon_path: str = ""):
+        """设置Logo显示
+
+        Args:
+            icon_text: emoji或文字图标
+            logo_text: Logo下方显示的文字
+            icon_path: 图片文件路径，优先级高于icon_text
+        """
+        # 处理Logo图标
+        if icon_path and icon_path.strip():
+            # 图片Logo
+            try:
+                # 加载并缩放图片
+                pixmap = QPixmap(icon_path.strip())
+                if not pixmap.isNull():
+                    # 缩放到48x48像素
+                    scaled_pixmap = pixmap.scaled(
+                        48, 48, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
+                    )
+
+                    # 创建正方形圆角遮罩
+                    rounded_pixmap = QPixmap(48, 48)
+                    rounded_pixmap.fill(Qt.GlobalColor.transparent)
+
+                    painter = QPainter(rounded_pixmap)
+                    painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+                    # 绘制圆角矩形背景
+                    colors = AntColorsDark if theme_manager.is_dark_theme() else AntColors
+                    painter.setBrush(QColor(colors.PRIMARY_6))
+                    painter.setPen(Qt.PenStyle.NoPen)
+                    painter.drawRoundedRect(0, 0, 48, 48, 8, 8)  # 8px圆角
+
+                    # 在圆角矩形内绘制图片
+                    painter.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceIn)
+                    x = (48 - scaled_pixmap.width()) // 2
+                    y = (48 - scaled_pixmap.height()) // 2
+                    painter.drawPixmap(x, y, scaled_pixmap)
+                    painter.end()
+
+                    self.logo_icon_label.setPixmap(rounded_pixmap)
+                    # 设置为图片模式，应用对应的CSS样式
+                    self.logo_icon_label.setProperty("logoType", "image")
+                    self.logo_icon_label.show()
+                    self.logo_icon_container.show()  # 显示图标容器
+                else:
+                    # 图片加载失败，隐藏图标
+                    self.logo_icon_label.hide()
+                    self.logo_icon_container.hide()  # 隐藏图标容器
+            except Exception as e:
+                print(f"Warning: Error loading logo image: {e}")
+                self.logo_icon_label.hide()
+                self.logo_icon_container.hide()  # 隐藏图标容器
+        elif icon_text and icon_text.strip():
+            # Emoji或文字图标
+            self.logo_icon_label.clear()
+            self.logo_icon_label.setText(icon_text.strip())
+            # 设置为文字模式，移除图片模式属性以应用默认CSS样式
+            self.logo_icon_label.setProperty("logoType", None)
+            # 样式由CSS控制，删除冗余的setStyleSheet调用
+            self.logo_icon_label.show()
+            self.logo_icon_container.show()  # 显示图标容器
+        else:
+            # 没有图标，隐藏
+            self.logo_icon_label.hide()
+            self.logo_icon_container.hide()  # 隐藏图标容器
+
+        # 处理Logo文字
+        if logo_text and logo_text.strip():
+            self.logo_text_label.setText(logo_text.strip())
+            self._update_logo_text_style()
+            self.logo_text_label.show()
+            self.logo_text_container.show()  # 显示文字容器
+        else:
+            # 没有文字或只有图片Logo时隐藏文字
+            self.logo_text_label.hide()
+            self.logo_text_container.hide()  # 隐藏文字容器
+
+    def _update_logo_text_style(self):
+        """更新Logo文字颜色（字体样式由CSS控制）"""
+        if hasattr(self, "logo_text_label"):
+            colors = AntColorsDark if theme_manager.is_dark_theme() else AntColors
+            # 只设置颜色，其他样式由CSS控制
+            self.logo_text_label.setStyleSheet(f"color: {colors.PRIMARY_6};")
+
     def _on_theme_changed(self, theme):
         """主题变化时刷新样式"""
         # 刷新容器样式
@@ -377,6 +525,15 @@ class NavigationTabs(QWidget):
         # 刷新所有按钮的样式（按钮有自己的主题变化处理）
         for button in self.buttons:
             button._update_style()
+
+        # 更新Logo样式
+        self._update_logo_theme()
+
+    def _update_logo_theme(self):
+        """更新Logo主题样式"""
+        # Logo图标样式由CSS控制，只需要更新文字颜色
+        if self.logo_text_label.isVisible():
+            self._update_logo_text_style()
 
 
 class NavigationTabWidget(QWidget):
@@ -522,6 +679,16 @@ class NavigationTabWidget(QWidget):
     def count(self) -> int:
         """获取选项卡数量"""
         return self.content_stack.count()
+
+    def setLogo(self, icon_text: str = "", logo_text: str = "", icon_path: str = ""):
+        """设置Logo显示
+
+        Args:
+            icon_text: emoji或文字图标
+            logo_text: Logo下方显示的文字
+            icon_path: 图片文件路径，优先级高于icon_text
+        """
+        self.nav_tabs.set_logo(icon_text, logo_text, icon_path)
 
     def _on_theme_changed(self, theme):
         """主题变化时刷新样式"""

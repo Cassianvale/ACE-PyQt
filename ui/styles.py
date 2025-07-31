@@ -498,13 +498,12 @@ class ThemeManager(QObject):
         NavigationButton {{
             border-radius: 6px;
             text-align: left;
-            font-weight: 500;
-            font-size: 13px;
             padding: 12px 16px 12px 22px;  /* 左侧留出更多指示器空间 */
             margin: 2px 4px 2px 10px;  /* 左侧留出更多指示器空间 */
             min-width: 50px;
             min-height: 30px;
             border: none;
+            /* 字体样式移到QLabel中统一管理 */
         }}
 
         /* NavigationButton 未激活状态 */
@@ -526,7 +525,7 @@ class ThemeManager(QObject):
         NavigationButton[buttonState="active"] {{
             background-color: {colors.PRIMARY_1};
             color: {colors.PRIMARY_6};
-            font-weight: 600;
+            /* 字体粗细在QLabel中设置 */
         }}
 
         NavigationButton[buttonState="active"]:hover {{
@@ -542,11 +541,14 @@ class ThemeManager(QObject):
         NavigationButton QLabel {{
             background-color: transparent;
             border: none;
+            font-size: 13px;  /* 明确设置字体大小 */
+            font-weight: 500;
         }}
 
         /* NavigationButton 激活状态的内部标签加粗 */
         NavigationButton[buttonState="active"] QLabel {{
             font-weight: 600;
+            font-size: 13px;  /* 确保激活状态也有正确字体大小 */
         }}
 
         /* 导航容器样式 - Fluent Design风格 */
@@ -590,6 +592,46 @@ class ThemeManager(QObject):
         QScrollArea[contentType="navigation"] QScrollBar::add-line:vertical,
         QScrollArea[contentType="navigation"] QScrollBar::sub-line:vertical {{
             height: 0px;
+        }}
+
+        /* Logo文字样式 */
+        QLabel[objectName="logo_text_label"] {{
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+            background-color: transparent;
+        }}
+
+        /* Logo图标样式 */
+        QLabel[objectName="logo_icon_label"] {{
+            background-color: {colors.PRIMARY_6};
+            color: white;
+            border-radius: 8px;  /* 正方形圆角遮罩，与代码中的8px保持一致 */
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            qproperty-alignment: AlignCenter;
+        }}
+
+        /* Logo图标图片模式样式 */
+        QLabel[objectName="logo_icon_label"][logoType="image"] {{
+            background-color: transparent;
+            border-radius: 8px;  /* 正方形圆角遮罩，与代码中的8px保持一致 */
+        }}
+
+        /* Logo容器样式 */
+        QWidget[objectName="logo_wrapper"] {{
+            background-color: transparent;
+        }}
+
+        /* Logo图标容器样式 */
+        QWidget[objectName="logo_icon_container"] {{
+            background-color: transparent;
+        }}
+
+        /* Logo文字容器样式 */
+        QWidget[objectName="logo_text_container"] {{
+            background-color: transparent;
         }}
 
 
