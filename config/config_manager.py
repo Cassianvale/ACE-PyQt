@@ -52,6 +52,10 @@ class ConfigManager:
         self.theme = self.default_config["application"]["theme"]
         self.check_update_on_start = self.default_config["application"]["check_update_on_start"]
 
+        # 窗口尺寸设置
+        self.window_width = self.default_config["window"]["width"]
+        self.window_height = self.default_config["window"]["height"]
+
         # 确保配置目录存在
         self._ensure_directories()
 
@@ -172,6 +176,15 @@ class ConfigManager:
                         self.check_update_on_start = bool(config_data["application"]["check_update_on_start"])
                         logger.debug(f"已从配置文件加载启动时检查更新设置: {self.check_update_on_start}")
 
+                # 读取窗口尺寸设置
+                if "window" in config_data:
+                    if "width" in config_data["window"]:
+                        self.window_width = int(config_data["window"]["width"])
+                        logger.debug(f"已从配置文件加载窗口宽度: {self.window_width}")
+                    if "height" in config_data["window"]:
+                        self.window_height = int(config_data["window"]["height"])
+                        logger.debug(f"已从配置文件加载窗口高度: {self.window_height}")
+
                 logger.debug("配置文件加载成功")
                 return True
             except Exception as e:
@@ -201,6 +214,8 @@ class ConfigManager:
             self.close_to_tray = self.default_config["application"]["close_to_tray"]
             self.theme = self.default_config["application"]["theme"]
             self.check_update_on_start = self.default_config["application"]["check_update_on_start"]
+            self.window_width = self.default_config["window"]["width"]
+            self.window_height = self.default_config["window"]["height"]
 
             logger.debug("已创建并加载默认配置")
         except Exception as e:
@@ -227,6 +242,10 @@ class ConfigManager:
                     "close_to_tray": self.close_to_tray,
                     "theme": self.theme,
                     "check_update_on_start": self.check_update_on_start,
+                },
+                "window": {
+                    "width": self.window_width,
+                    "height": self.window_height,
                 },
             }
 
@@ -267,3 +286,39 @@ class ConfigManager:
     def get_github_releases_url(self):
         """获取GitHub发布页面URL"""
         return self.app_info["github_releases_url"]
+
+    def save_window_size(self, width, height):
+        """
+        保存窗口尺寸到配置文件
+
+        Args:
+            width (int): 窗口宽度
+            height (int): 窗口高度
+
+        Returns:
+            bool: 保存是否成功
+        """
+        try:
+            # 更新内存中的配置
+            self.window_width = width
+            self.window_height = height
+
+            # 保存到配置文件
+            success = self.save_config()
+            if success:
+                logger.debug(f"窗口尺寸已保存: {width}x{height}")
+            else:
+                logger.error("保存窗口尺寸失败")
+            return success
+        except Exception as e:
+            logger.error(f"保存窗口尺寸时发生错误: {str(e)}")
+            return False
+
+    def get_window_size(self):
+        """
+        获取窗口尺寸
+
+        Returns:
+            tuple: (width, height) 窗口宽度和高度
+        """
+        return (self.window_width, self.window_height)

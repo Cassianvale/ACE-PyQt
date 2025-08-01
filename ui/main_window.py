@@ -92,6 +92,10 @@ class MainWindow(QWidget):
         self.setWindowTitle(self.app_name)
         self.setMinimumSize(700, 800)
 
+        # 设置窗口尺寸（从配置文件加载）
+        window_width, window_height = self.config_manager.get_window_size()
+        self.resize(window_width, window_height)
+
         # 设置无边框窗口
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowSystemMenuHint)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)

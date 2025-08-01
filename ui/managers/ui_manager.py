@@ -39,6 +39,16 @@ class UIManager:
         self.main_window.custom_titlebar = CustomTitleBar(self.main_window)
         main_layout.addWidget(self.main_window.custom_titlebar)
 
+        # 添加窗口边缘调整大小功能
+        from ui.components.resizable_window import ResizableWindow
+
+        self.main_window.resizable_window = ResizableWindow(
+            window=self.main_window,
+            edge_width=8,
+            min_width=700,  # 与主窗口的最小宽度保持一致
+            min_height=800,  # 与主窗口的最小高度保持一致
+        )
+
         # 创建内容区域
         content_widget = QWidget()
         content_layout = QVBoxLayout(content_widget)
