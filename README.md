@@ -14,7 +14,7 @@
 
 <div align="left">
 
-> **现代化的 PyQt6 桌面应用程序开发框架**
+> **现代化的 PyQt6 桌面应用程序开发框架**  
 > 基于 [ACE-KILLER](https://github.com/Cassianvale/ACE-KILLER) 项目重构，提供完整的桌面应用开发解决方案
 
 </div>
@@ -165,18 +165,6 @@ ACE-PyQt/
 ## 📄 许可证
 
 本项目采用 GPL-3.0 许可证。详情请参阅 [LICENSE](LICENSE) 文件。
-
-## 🙏 致谢
-
-- [PyQt6](https://www.riverbankcomputing.com/software/pyqt/) - 强大的 Python GUI 框架
-- [Loguru](https://github.com/Delgan/loguru) - 优雅的 Python 日志库
-- [ACE-KILLER](https://github.com/Cassianvale/ACE-KILLER) - 原始项目基础
-
-## 📞 联系方式
-
-- 作者：Cassianvale
-- 项目主页：[https://github.com/Cassianvale/ACE-PyQt](https://github.com/Cassianvale/ACE-PyQt)
-- 问题反馈：[Issues](https://github.com/Cassianvale/ACE-PyQt/issues)
 
 ---
 
