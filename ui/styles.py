@@ -179,12 +179,7 @@ class ThemeManager(QObject):
             background-color: transparent;
             color: {colors.GRAY_9};
         }}
-        
-        /* === 无边框主窗口保持透明 === */
-        QWidget[windowType="frameless"] {{
-            background-color: transparent;
-            color: {colors.GRAY_9};
-        }}
+
 
         /* === 自定义标题栏 === */
         CustomTitleBar {{
@@ -623,7 +618,7 @@ class ThemeManager(QObject):
         /* Logo图标图片模式样式 */
         QLabel[objectName="logo_icon_label"][logoType="image"] {{
             background-color: transparent;
-            border-radius: 8px;  /* 正方形圆角遮罩，与代码中的8px保持一致 */
+            border-radius: 0px;  /* 移除圆角，显示原始图片 */
         }}
 
         /* Logo容器样式 */

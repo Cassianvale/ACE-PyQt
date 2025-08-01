@@ -334,7 +334,7 @@ class NavigationTabs(QWidget):
         # Logo总容器的垂直布局
         logo_main_layout = QVBoxLayout(self.logo_wrapper)
         logo_main_layout.setContentsMargins(12, 8, 12, 8)  # 左右12px，上下8px
-        logo_main_layout.setSpacing(8)  # 图标和文字容器之间的间隔
+        logo_main_layout.setSpacing(30)  # 图标和文字容器之间的间隔
 
         # === Logo图标独立容器 ===
         self.logo_icon_container = QWidget()
@@ -360,7 +360,7 @@ class NavigationTabs(QWidget):
 
         # === Logo文字独立容器 ===
         self.logo_text_container = QWidget()
-        self.logo_text_container.setMinimumHeight(16)  # 最小高度16px
+        self.logo_text_container.setMinimumHeight(30)  # 最小高度16px
         self.logo_text_container.setObjectName("logo_text_container")
 
         # Logo文字容器的布局
@@ -446,32 +446,13 @@ class NavigationTabs(QWidget):
                 # 加载并缩放图片
                 pixmap = QPixmap(icon_path.strip())
                 if not pixmap.isNull():
-                    # 缩放到48x48像素
+                    # 缩放到48x48像素，保持宽高比
                     scaled_pixmap = pixmap.scaled(
                         48, 48, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
                     )
 
-                    # 创建正方形圆角遮罩
-                    rounded_pixmap = QPixmap(48, 48)
-                    rounded_pixmap.fill(Qt.GlobalColor.transparent)
-
-                    painter = QPainter(rounded_pixmap)
-                    painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-
-                    # 绘制圆角矩形背景
-                    colors = AntColorsDark if theme_manager.is_dark_theme() else AntColors
-                    painter.setBrush(QColor(colors.PRIMARY_6))
-                    painter.setPen(Qt.PenStyle.NoPen)
-                    painter.drawRoundedRect(0, 0, 48, 48, 8, 8)  # 8px圆角
-
-                    # 在圆角矩形内绘制图片
-                    painter.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceIn)
-                    x = (48 - scaled_pixmap.width()) // 2
-                    y = (48 - scaled_pixmap.height()) // 2
-                    painter.drawPixmap(x, y, scaled_pixmap)
-                    painter.end()
-
-                    self.logo_icon_label.setPixmap(rounded_pixmap)
+                    # 直接使用缩放后的图片，不应用任何遮罩或叠加效果
+                    self.logo_icon_label.setPixmap(scaled_pixmap)
                     # 设置为图片模式，应用对应的CSS样式
                     self.logo_icon_label.setProperty("logoType", "image")
                     self.logo_icon_label.show()
