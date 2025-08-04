@@ -233,11 +233,9 @@ def disable_auto_start(app_name=None):
             try:
                 # 删除注册表项
                 winreg.DeleteValue(key, app_name)
-                logger.debug(f"已取消开机自启（注册表）: {app_name}")
+                logger.debug(f"已取消开机自启: {app_name}")
                 return True
             except FileNotFoundError:
-                # 注册表项不存在，也算成功
-                logger.debug(f"开机自启项不存在，无需删除: {app_name}")
                 return True
 
     except PermissionError:

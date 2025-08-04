@@ -39,4 +39,5 @@ SYSTEM_CONFIG = {
     "log_dir_name": "logs",  # 日志目录名称
     "config_file_name": "config.yaml",  # 配置文件名称
     "network_timeout": 10,  # 网络请求超时时间（秒）
+    "require_admin_privileges": False,  # 是否要求管理员权限启动应用程序
 }

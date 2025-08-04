@@ -46,8 +46,9 @@ def main(custom_app_info=None, custom_default_config=None, custom_system_config=
         final_system_config.update(custom_system_config)
 
     # 检查管理员权限
-    if not run_as_admin():
-        return
+    if final_system_config.get("require_admin_privileges", True):
+        if not run_as_admin():
+            return
 
     # 检查单实例运行
     mutex_name = f"Global\\{final_app_info['name'].replace(' ', '_')}_MUTEX"
