@@ -27,3 +27,5 @@ zstandard==0.23.0
 pyqt5==5.15.11
 pyqt5-qt5==5.15.2
 pyqt5-sip==12.17.0
+# PyQt-Fluent-Widgets
+pyqt-fluent-widgets[full]==1.7.3

@@ -27,7 +27,7 @@ DEFAULT_CONFIG = {
     "application": {
         "auto_start": False,  # 开机自启动默认关闭
         "close_to_tray": True,  # 关闭窗口时默认最小化到托盘
-        "theme": "light",  # 默认浅色主题
+        "theme": "auto",  # 默认浅色主题
         "check_update_on_start": True,  # 启动时检查更新默认开启
     },
     "window": {"width": 700, "height": 800},  # 默认窗口尺寸

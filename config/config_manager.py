@@ -23,7 +23,7 @@ class ConfigManager:
         "debug_mode": ("logging.debug_mode", bool, None),
         "auto_start": ("application.auto_start", bool, None),
         "close_to_tray": ("application.close_to_tray", bool, None),
-        "theme": ("application.theme", str, lambda x: x if x in ["light", "dark"] else None),
+        "theme": ("application.theme", str, lambda x: x if x in ["auto", "light", "dark"] else None),
         "check_update_on_start": ("application.check_update_on_start", bool, None),
         "window_width": ("window.width", int, None),
         "window_height": ("window.height", int, None),

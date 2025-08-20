@@ -8,6 +8,7 @@
 import os
 import sys
 import queue
+import argparse
 
 from config import ConfigManager, APP_INFO, DEFAULT_CONFIG, SYSTEM_CONFIG
 from utils import (
@@ -20,7 +21,6 @@ from utils import (
     create_notification_thread,
     check_for_update,
 )
-from ui import create_gui
 
 
 def main(custom_app_info=None, custom_default_config=None, custom_system_config=None):
@@ -32,8 +32,13 @@ def main(custom_app_info=None, custom_default_config=None, custom_system_config=
         custom_default_config (dict, optional): 自定义默认配置，用于覆盖默认值
         custom_system_config (dict, optional): 自定义系统配置，用于覆盖默认值
     """
-    # 检查是否以最小化模式启动（通过命令行参数）
-    start_minimized = "--minimized" in sys.argv
+    # 解析命令行参数
+    parser = argparse.ArgumentParser(description="ACE-PyQt 应用程序")
+    parser.add_argument("--minimized", action="store_true", help="以最小化模式启动")
+    parser.add_argument("--gui", choices=["old", "new"], default="new", help="选择GUI模式")
+    args = parser.parse_args()
+    
+    start_minimized = args.minimized
 
     # 合并应用信息
     final_app_info = APP_INFO.copy()
@@ -77,8 +82,36 @@ def main(custom_app_info=None, custom_default_config=None, custom_system_config=
     # 通知线程
     notification_thread_obj, stop_event = create_notification_thread(queue.Queue(), icon_path)
 
-    # 创建并运行PyQt5图形界面
-    app, window = create_gui(config_manager, icon_path, start_minimized)
+    # 根据参数选择GUI模式
+    if args.gui == "new":
+        # 使用新的PyQt-Fluent-Widgets界面
+        from app.main_window import MainWindow
+        from contextlib import redirect_stdout
+        
+        with redirect_stdout(None):
+            from PyQt5.QtWidgets import QApplication
+            from PyQt5.QtCore import Qt
+        
+        # 启用高DPI支持
+        QApplication.setHighDpiScaleFactorRoundingPolicy(
+            Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
+        )
+        QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
+        QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
+        
+        app = QApplication(sys.argv)
+        window = MainWindow()
+        
+        if not start_minimized:
+            window.show()
+    else:
+        # 使用原有的UI界面（向后兼容）
+        try:
+            from ui import create_gui
+            app, window = create_gui(config_manager, icon_path, start_minimized)
+        except ImportError:
+            logger.error("旧版UI模块无法导入，请使用 --gui new 参数")
+            return
 
     app_name = config_manager.get_app_name()
     app_author = config_manager.get_app_author()

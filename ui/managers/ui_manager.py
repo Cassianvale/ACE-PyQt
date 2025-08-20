@@ -16,7 +16,7 @@ from PyQt5.QtCore import Qt
 from ui.styles import StyleHelper, TitleHelper
 from ui.components.modern_switch import ModernSwitch
 from ui.components.card_group_box import CardGroupBox
-from ui.components.custom_grips import CustomGrip
+from app.components.custom_grips import CustomGrip
 from utils import get_app_version
 
 
