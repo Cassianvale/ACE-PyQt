@@ -1,0 +1,43 @@
+/* Dark theme for Home Interface */
+QWidget {
+    background-color: #202020;
+    color: #ffffff;
+}
+
+QScrollArea {
+    background-color: transparent;
+    border: none;
+}
+
+QScrollArea > QWidget > QWidget {
+    background-color: transparent;
+}
+
+/* Card styling */
+QFrame[objectName="cardFrame"] {
+    background-color: #2d2d30;
+    border: 1px solid #3f3f46;
+    border-radius: 8px;
+}
+
+QFrame[objectName="cardFrame"]:hover {
+    background-color: #383838;
+    border-color: #505050;
+}
+
+/* Label styling */
+QLabel {
+    color: #ffffff;
+    background-color: transparent;
+}
+
+QLabel[objectName="titleLabel"] {
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+QLabel[objectName="subtitleLabel"] {
+    font-size: 12px;
+    color: #cccccc;
+}
