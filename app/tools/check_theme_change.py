@@ -12,7 +12,7 @@ class SystemThemeListener(QThread):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self._isSupported = False
-
+    
     def run(self):
         # 运行时检测监听能力
         try:
@@ -39,12 +39,9 @@ def checkThemeChange(self):
 
     self.themeListener = SystemThemeListener(self)
     
-    # 仅在检测到支持时启用
     if self.themeListener.isRunning():
         self.themeListener.systemThemeChanged.connect(handle_theme_change)
     else:
-        # 自动降级为手动模式
-        # qconfig.set(qconfig.themeMode, Theme.LIGHT)  # 或从配置读取
         self.themeListener = None
     
     return self.themeListener

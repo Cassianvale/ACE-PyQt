@@ -1,25 +1,42 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""设置界面模块"""
+"""设置界面模块 - 纯UI层，业务逻辑已分离到module层"""
 
 from contextlib import redirect_stdout
 
 with redirect_stdout(None):
     from qfluentwidgets import (
         ScrollArea, VBoxLayout,
-        SettingCardGroup, SwitchSettingCard, ComboBoxSettingCard,
-        PushSettingCard, StrongBodyLabel, FluentIcon as FLF,
-        OptionsConfigItem, OptionsValidator
+        SettingCardGroup, StrongBodyLabel, FluentIcon as FLF,
+        OptionsConfigItem, OptionsValidator, InfoBar, InfoBarPosition
     )
     from PyQt5.QtWidgets import QWidget, QVBoxLayout
-    from PyQt5.QtCore import Qt
+    from PyQt5.QtCore import Qt, pyqtSignal, QTimer
 
 from ..common.style_sheet import StyleSheet
+from ..card.switch_setting_card import SwitchSettingCard
+from ..card.combo_setting_card import ComboBoxSettingCard
+from ..card.push_setting_card import PushSettingCard
+
+# 业务逻辑模块
+from module.settings.startup import StartupSettings
+from module.settings.notifications import NotificationSettings
+from module.settings.window import WindowSettings
+from module.settings.logging import LoggingSettings
+from module.settings.directory import DirectoryManager
+from module.theme.theme_manager import ThemeManager
+from module.update.update_manager import UpdateManager
+from module.config import cfg
+from utils.logger import logger
 
 
 class SettingsInterface(ScrollArea):
-    """设置界面"""
+    """设置界面 - 纯UI层"""
+    
+    # UI事件信号
+    themeChangeRequested = pyqtSignal(str)
+    updateCheckRequested = pyqtSignal()
     
     def __init__(self, parent=None):
         super().__init__(parent=parent)
@@ -30,10 +47,16 @@ class SettingsInterface(ScrollArea):
         self.scrollWidget.setObjectName("scrollWidget")
         self.vBoxLayout = QVBoxLayout(self.scrollWidget)
         
+        # 初始化更新管理器
+        self.update_manager = UpdateManager()
+        self.update_manager.initialize()
+        
         # 初始化界面
         self._initWidget()
         self._initLayout()
         self._initSettingGroups()
+        self._loadSettings()
+        self._connectUpdateSignals()
         
         # 应用样式
         StyleSheet.SETTINGS_INTERFACE.apply(self)
@@ -59,8 +82,8 @@ class SettingsInterface(ScrollArea):
         # 主题设置组
         self._createThemeSettingsGroup()
         
-        # 自动化设置组
-        self._createAutomationSettingsGroup()
+        # 系统设置组
+        self._createSystemSettingsGroup()
         
         # 关于设置组
         self._createAboutSettingsGroup()
@@ -74,78 +97,103 @@ class SettingsInterface(ScrollArea):
             FLF.POWER_BUTTON,
             "开机自启动",
             "开机时自动启动应用程序",
+            business_handler=lambda enabled: StartupSettings.toggle_auto_start(enabled, cfg.get_app_name()),
             parent=self.appGroup
         )
         
-        # 最小化到托盘
-        self.minimizeToTrayCard = SwitchSettingCard(
-            FLF.MINIMIZE,
-            "最小化到托盘",
-            "关闭窗口时最小化到系统托盘",
+        # 启动时检查更新
+        self.checkUpdateOnStartCard = SwitchSettingCard(
+            FLF.UPDATE,
+            "启动时检查更新",
+            "应用启动时自动检查是否有新版本",
+            business_handler=StartupSettings.toggle_check_update_on_start,
+            parent=self.appGroup
+        )
+        
+        # 显示通知
+        self.showNotificationsCard = SwitchSettingCard(
+            FLF.RINGER,
+            "显示通知",
+            "允许应用显示系统通知",
+            business_handler=NotificationSettings.toggle_notifications,
+            parent=self.appGroup
+        )
+        
+        # 关闭行为
+        self.closeBehaviorCard = ComboBoxSettingCard(
+            FLF.CLOSE_PANE,
+            "关闭行为",
+            "设置点击关闭按钮时的行为",
+            texts=["直接退出", "最小化到托盘"],
+            business_handler=lambda option: WindowSettings.set_close_behavior(option == "最小化到托盘"),
+            parent=self.appGroup
+        )
+        
+        # 调试模式
+        self.debugModeCard = SwitchSettingCard(
+            FLF.DEVELOPER_TOOLS,
+            "调试模式",
+            "启用调试模式以获取更详细的日志信息",
+            business_handler=LoggingSettings.toggle_debug_mode,
             parent=self.appGroup
         )
         
         self.appGroup.addSettingCard(self.autoStartCard)
-        self.appGroup.addSettingCard(self.minimizeToTrayCard)
+        self.appGroup.addSettingCard(self.checkUpdateOnStartCard)
+        self.appGroup.addSettingCard(self.showNotificationsCard)
+        self.appGroup.addSettingCard(self.closeBehaviorCard)
+        self.appGroup.addSettingCard(self.debugModeCard)
         self.vBoxLayout.addWidget(self.appGroup)
     
     def _createThemeSettingsGroup(self):
         """创建主题设置组"""
         self.themeGroup = SettingCardGroup("主题设置", self.scrollWidget)
         
-        # 简化版主题设置 - 使用 PushSettingCard 暂时替代
-        self.themeCard = PushSettingCard(
-            "选择主题",
+        # 应用主题
+        theme_options = {
+            "auto": "跟随系统",
+            "light": "浅色模式", 
+            "dark": "深色模式"
+        }
+        self.themeCard = ComboBoxSettingCard(
             FLF.BRUSH,
             "应用主题",
-            "选择应用程序的主题风格：跟随系统、浅色模式、深色模式",
+            "选择应用程序的主题风格",
+            business_handler=self._handle_theme_change,
             parent=self.themeGroup
         )
-        
-        # 主题色设置
-        self.themeColorCard = PushSettingCard(
-            "选择主题色",
-            FLF.PALETTE,
-            "主题色",
-            "选择应用程序的主题颜色：默认蓝、紫色、绿色、橙色、红色",
-            parent=self.themeGroup
-        )
-        
-        # 连接信号
-        self.themeCard.clicked.connect(self._onThemeClicked)
-        self.themeColorCard.clicked.connect(self._onThemeColorClicked)
+        self.themeCard.set_options(theme_options)
         
         self.themeGroup.addSettingCard(self.themeCard)
-        self.themeGroup.addSettingCard(self.themeColorCard)
         self.vBoxLayout.addWidget(self.themeGroup)
     
-    def _createAutomationSettingsGroup(self):
-        """创建自动化设置组"""
-        self.automationGroup = SettingCardGroup("自动化设置", self.scrollWidget)
+    def _createSystemSettingsGroup(self):
+        """创建系统设置组"""
+        self.systemGroup = SettingCardGroup("系统设置", self.scrollWidget)
         
-        # 启用自动化
-        self.enableAutomationCard = SwitchSettingCard(
-            FLF.PLAY,
-            "启用自动化",
-            "启用自动化任务执行",
-            parent=self.automationGroup
+        # 打开配置目录
+        self.openConfigDirCard = PushSettingCard(
+            "打开目录",
+            FLF.FOLDER,
+            "配置文件目录",
+            "打开应用程序配置文件所在目录",
+            business_handler=DirectoryManager.open_config_directory,
+            parent=self.systemGroup
         )
         
-        # 任务间隔 - 简化版
-        self.taskIntervalCard = PushSettingCard(
-            "设置间隔",
-            FLF.CALENDAR,
-            "任务执行间隔",
-            "设置自动化任务的执行间隔：1分钟、5分钟、10分钟、30分钟、1小时",
-            parent=self.automationGroup
+        # 打开日志目录
+        self.openLogDirCard = PushSettingCard(
+            "打开目录",
+            FLF.DOCUMENT,
+            "日志文件目录",
+            "打开应用程序日志文件所在目录",
+            business_handler=DirectoryManager.open_log_directory,
+            parent=self.systemGroup
         )
         
-        # 连接信号
-        self.taskIntervalCard.clicked.connect(self._onTaskIntervalClicked)
-        
-        self.automationGroup.addSettingCard(self.enableAutomationCard)
-        self.automationGroup.addSettingCard(self.taskIntervalCard)
-        self.vBoxLayout.addWidget(self.automationGroup)
+        self.systemGroup.addSettingCard(self.openConfigDirCard)
+        self.systemGroup.addSettingCard(self.openLogDirCard)
+        self.vBoxLayout.addWidget(self.systemGroup)
     
     def _createAboutSettingsGroup(self):
         """创建关于设置组"""
@@ -157,42 +205,97 @@ class SettingsInterface(ScrollArea):
             FLF.UPDATE,
             "检查更新",
             "检查应用程序是否有新版本",
+            business_handler=self._handle_check_update,
             parent=self.aboutGroup
         )
-        
-        # 重置设置
-        self.resetSettingsCard = PushSettingCard(
-            "重置设置",
-            FLF.DELETE,
-            "重置所有设置",
-            "将所有设置恢复为默认值",
-            parent=self.aboutGroup
-        )
-        
-        # 连接信号
-        self.checkUpdateCard.clicked.connect(self._onCheckUpdateClicked)
-        self.resetSettingsCard.clicked.connect(self._onResetSettingsClicked)
         
         self.aboutGroup.addSettingCard(self.checkUpdateCard)
-        self.aboutGroup.addSettingCard(self.resetSettingsCard)
         self.vBoxLayout.addWidget(self.aboutGroup)
     
-    def _onThemeClicked(self):
-        """主题设置按钮点击事件"""
-        print("打开主题选择")
+    def _loadSettings(self):
+        """从配置加载设置到界面"""
+        try:
+            # 加载应用设置
+            self.autoStartCard.load_value(StartupSettings.get_auto_start_status())
+            self.checkUpdateOnStartCard.load_value(StartupSettings.get_check_update_on_start_status())
+            self.showNotificationsCard.load_value(NotificationSettings.get_notification_status())
+            
+            # 加载关闭行为
+            close_to_tray = WindowSettings.get_close_behavior()
+            self.closeBehaviorCard.load_value("最小化到托盘" if close_to_tray else "直接退出")
+            
+            # 加载调试模式
+            self.debugModeCard.load_value(LoggingSettings.get_debug_mode_status())
+            
+            # 加载主题设置
+            current_theme = ThemeManager.get_current_theme()
+            self.themeCard.load_value(current_theme)
+            
+            logger.debug("设置界面加载完成")
+            
+        except Exception as e:
+            logger.error(f"加载设置界面失败: {str(e)}")
     
-    def _onThemeColorClicked(self):
-        """主题色设置按钮点击事件"""
-        print("打开主题色选择")
+    def _handle_theme_change(self, theme: str) -> bool:
+        """处理主题变更"""
+        success = ThemeManager.switch_theme(theme)
+        if success:
+            self.themeChangeRequested.emit(theme)
+            self._show_info_bar("主题设置", f"主题已切换为{ThemeManager.get_theme_display_name(theme)}模式")
+        return success
     
-    def _onTaskIntervalClicked(self):
-        """任务间隔设置按钮点击事件"""
-        print("打开任务间隔设置")
+    def _handle_check_update(self):
+        """处理检查更新"""
+        self.checkUpdateCard.set_button_text("检查中...")
+        self.checkUpdateCard.set_button_enabled(False)
+        self.update_manager.check_for_updates(silent_mode=False)
     
-    def _onCheckUpdateClicked(self):
-        """检查更新按钮点击事件"""
-        print("检查更新")
+    def _connectUpdateSignals(self):
+        """连接更新相关信号"""
+        if hasattr(self.update_manager.version_checker, 'check_finished'):
+            self.update_manager.version_checker.check_finished.connect(self._on_update_check_finished)
     
-    def _onResetSettingsClicked(self):
-        """重置设置按钮点击事件"""
-        print("重置设置")
+    def _on_update_check_finished(self, has_update, current_ver, latest_ver, update_info_str, error_msg):
+        """更新检查完成处理"""
+        self.checkUpdateCard.set_button_text("检查更新")
+        self.checkUpdateCard.set_button_enabled(True)
+        
+        result = self.update_manager.process_update_result(
+            has_update, current_ver, latest_ver, update_info_str, error_msg
+        )
+        
+        if result.get('silent_mode'):
+            return
+        
+        if result.get('has_update'):
+            self._show_info_bar(
+                "发现新版本", 
+                f"发现新版本 v{latest_ver}，请前往下载页面更新", 
+                InfoBar.success
+            )
+        elif result.get('error_msg'):
+            self._show_info_bar(
+                "检查更新失败", 
+                result['error_msg'], 
+                InfoBar.error
+            )
+        else:
+            self._show_info_bar(
+                "已是最新版本", 
+                f"当前版本 v{current_ver} 已经是最新版本", 
+                InfoBar.success
+            )
+    
+    def _show_info_bar(self, title: str, content: str, bar_type=InfoBar.success):
+        """显示信息条"""
+        try:
+            InfoBar.createInfoBar(
+                content=content,
+                title=title,
+                orientation=Qt.Horizontal,
+                isClosable=True,
+                position=InfoBarPosition.TOP,
+                parent=self.parent() or self
+            )
+        except Exception as e:
+            logger.error(f"显示信息条失败: {str(e)}")
