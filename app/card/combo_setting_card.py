@@ -5,13 +5,15 @@
 Combo Box Setting Card - Selection configuration card with business logic integration
 """
 
-from qfluentwidgets import ComboBoxSettingCard as BaseComboBoxSettingCard
+from qfluentwidgets import ComboBox, SettingCard, FluentIconBase
+from typing import Union
+from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QHBoxLayout
 from utils.logger import logger
 
 
-class ComboBoxSettingCard(BaseComboBoxSettingCard):
+class ComboBoxSettingCard(SettingCard):
     """
     Enhanced ComboBox Setting Card with automatic business logic binding
     """
@@ -19,7 +21,7 @@ class ComboBoxSettingCard(BaseComboBoxSettingCard):
     # 设置值变化信号
     valueChanged = pyqtSignal(str)
     
-    def __init__(self, icon, title, content=None, texts=None, business_handler=None, parent=None):
+    def __init__(self, icon: Union[str, QIcon, FluentIconBase], title, content=None, texts=None, business_handler=None, parent=None):
         """
         Initialize combo box setting card
         

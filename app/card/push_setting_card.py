@@ -6,12 +6,14 @@ Push Setting Card - Action button configuration card with business logic integra
 """
 
 
-from qfluentwidgets import PushSettingCard as BasePushSettingCard
+from qfluentwidgets import SettingCard, FluentIconBase, InfoBar, InfoBarPosition
+from typing import Union
+from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import pyqtSignal
 from utils.logger import logger
 
 
-class PushSettingCard(BasePushSettingCard):
+class PushSettingCard(SettingCard):
     """
     Enhanced Push Setting Card with business logic integration
     """
@@ -19,7 +21,7 @@ class PushSettingCard(BasePushSettingCard):
     # 按钮点击信号
     actionRequested = pyqtSignal()
     
-    def __init__(self, text, icon, title, content=None, business_handler=None, parent=None):
+    def __init__(self, text, icon: Union[str, QIcon, FluentIconBase], title, content=None, business_handler=None, parent=None):
         """
         Initialize push setting card
         

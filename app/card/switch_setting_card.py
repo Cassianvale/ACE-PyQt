@@ -5,20 +5,21 @@
 Switch Setting Card - Boolean configuration card that automatically binds to business logic
 """
 
-from qfluentwidgets import SwitchSettingCard as BaseSwitchSettingCard
+from qfluentwidgets import SettingCard, FluentIconBase, SwitchButton, IndicatorPosition, ComboBox
+from typing import Union
+from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import pyqtSignal
 from utils.logger import logger
 
 
-class SwitchSettingCard(BaseSwitchSettingCard):
+class SwitchSettingCard(SettingCard):
     """
     Enhanced Switch Setting Card with automatic business logic binding
     """
-    
-    # 设置值变化信号
+
     valueChanged = pyqtSignal(bool)
     
-    def __init__(self, icon, title, content=None, business_handler=None, parent=None):
+    def __init__(self, icon: Union[str, QIcon, FluentIconBase], title, content=None, business_handler=None, parent=None):
         """
         Initialize switch setting card
         
