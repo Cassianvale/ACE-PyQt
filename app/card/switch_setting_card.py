@@ -5,12 +5,8 @@
 Switch Setting Card - Boolean configuration card that automatically binds to business logic
 """
 
-from contextlib import redirect_stdout
-
-with redirect_stdout(None):
-    from qfluentwidgets import SwitchSettingCard as BaseSwitchSettingCard
-    from PyQt5.QtCore import pyqtSignal
-
+from qfluentwidgets import SwitchSettingCard as BaseSwitchSettingCard
+from PyQt5.QtCore import pyqtSignal
 from utils.logger import logger
 
 

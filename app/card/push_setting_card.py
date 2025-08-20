@@ -5,12 +5,9 @@
 Push Setting Card - Action button configuration card with business logic integration
 """
 
-from contextlib import redirect_stdout
 
-with redirect_stdout(None):
-    from qfluentwidgets import PushSettingCard as BasePushSettingCard
-    from PyQt5.QtCore import pyqtSignal
-
+from qfluentwidgets import PushSettingCard as BasePushSettingCard
+from PyQt5.QtCore import pyqtSignal
 from utils.logger import logger
 
 

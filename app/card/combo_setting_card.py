@@ -5,13 +5,9 @@
 Combo Box Setting Card - Selection configuration card with business logic integration
 """
 
-from contextlib import redirect_stdout
-
-with redirect_stdout(None):
-    from qfluentwidgets import ComboBoxSettingCard as BaseComboBoxSettingCard
-    from PyQt5.QtCore import pyqtSignal
-    from PyQt5.QtWidgets import QHBoxLayout
-
+from qfluentwidgets import ComboBoxSettingCard as BaseComboBoxSettingCard
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtWidgets import QHBoxLayout
 from utils.logger import logger
 
 
