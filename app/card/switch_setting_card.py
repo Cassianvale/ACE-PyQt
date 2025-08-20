@@ -10,7 +10,7 @@ from qfluentwidgets import SettingCard, FluentIconBase, SwitchButton, InfoBar, I
 from typing import Union, Optional
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import pyqtSignal, Qt
-from utils.logger import logger
+from app.tools import logger
 
 
 class SwitchSettingCard(SettingCard):
@@ -42,6 +42,11 @@ class SwitchSettingCard(SettingCard):
         self.business_handler = business_handler
         self.show_indicator = show_indicator
         self._initializing = False
+
+
+        self.switchButton = SwitchButton(self)
+        self.hBoxLayout.addWidget(self.switchButton, 0, Qt.AlignRight)
+        self.hBoxLayout.addSpacing(16)
 
         if self.show_indicator:
             self.switchButton.setText(self.tr("off"))

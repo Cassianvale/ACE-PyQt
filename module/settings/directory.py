@@ -9,7 +9,7 @@ import os
 import subprocess
 import platform
 from pathlib import Path
-from utils.logger import logger
+from app.tools import logger
 from module.config import cfg
 
 

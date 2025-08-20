@@ -21,14 +21,13 @@ from ..card.push_setting_card import PushSettingCard
 
 # 业务逻辑模块
 from module.settings.startup import StartupSettings
-from module.settings.notifications import NotificationSettings
 from module.settings.window import WindowSettings
 from module.settings.logging import LoggingSettings
 from module.settings.directory import DirectoryManager
 from module.theme.theme_manager import ThemeManager
 from module.update.update_manager import UpdateManager
 from module.config import cfg
-from utils.logger import logger
+from app.tools import logger
 
 
 class SettingsInterface(ScrollArea):
@@ -110,18 +109,9 @@ class SettingsInterface(ScrollArea):
             parent=self.appGroup
         )
         
-        # 显示通知
-        self.showNotificationsCard = SwitchSettingCard(
-            FLF.RINGER,
-            "显示通知",
-            "允许应用显示系统通知",
-            business_handler=NotificationSettings.toggle_notifications,
-            parent=self.appGroup
-        )
-        
         # 关闭行为
         self.closeBehaviorCard = ComboBoxSettingCard(
-            FLF.CLOSE_PANE,
+            FLF.CLOSE,
             "关闭行为",
             "设置点击关闭按钮时的行为",
             texts=["直接退出", "最小化到托盘"],
@@ -140,7 +130,6 @@ class SettingsInterface(ScrollArea):
         
         self.appGroup.addSettingCard(self.autoStartCard)
         self.appGroup.addSettingCard(self.checkUpdateOnStartCard)
-        self.appGroup.addSettingCard(self.showNotificationsCard)
         self.appGroup.addSettingCard(self.closeBehaviorCard)
         self.appGroup.addSettingCard(self.debugModeCard)
         self.vBoxLayout.addWidget(self.appGroup)
@@ -218,7 +207,6 @@ class SettingsInterface(ScrollArea):
             # 加载应用设置
             self.autoStartCard.load_value(StartupSettings.get_auto_start_status())
             self.checkUpdateOnStartCard.load_value(StartupSettings.get_check_update_on_start_status())
-            self.showNotificationsCard.load_value(NotificationSettings.get_notification_status())
             
             # 加载关闭行为
             close_to_tray = WindowSettings.get_close_behavior()

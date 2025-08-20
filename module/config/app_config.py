@@ -18,7 +18,6 @@ APP_INFO = {
 
 # 用户默认配置
 DEFAULT_CONFIG = {
-    "notifications": {"enabled": True},  # 通知默认开启
     "logging": {
         "retention_days": 7,  # 日志保留天数
         "rotation": "1 day",  # 日志轮转周期

@@ -10,7 +10,7 @@ from qfluentwidgets import SettingCard, FluentIconBase, ComboBox, InfoBar, InfoB
 from typing import Union, Optional, Dict, List
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import pyqtSignal, Qt
-from utils.logger import logger
+from app.tools import logger
 
 
 class ComboBoxSettingCard(SettingCard):
@@ -42,8 +42,13 @@ class ComboBoxSettingCard(SettingCard):
         self.configname = configname
         self.business_handler = business_handler
         self._initializing = False
+        self._processing_change = False  # Recursion protection flag
         self._option_mapping = {}  # Maps display text to actual values
         self._reverse_mapping = {}  # Maps values to display text
+        
+        self.comboBox = ComboBox(self)
+        self.hBoxLayout.addWidget(self.comboBox, 0, Qt.AlignRight)
+        self.hBoxLayout.addSpacing(16)
         
         # 设置选项
         if texts:
@@ -246,8 +251,15 @@ class ComboBoxSettingCard(SettingCard):
         # Skip if we're initializing
         if self._initializing:
             return
+            
+        # Recursion protection
+        if self._processing_change:
+            logger.debug(f"Change already in progress for {self.titleLabel.text()}, ignoring")
+            return
         
         try:
+            self._processing_change = True
+            
             # Get the actual value (might be different from display text)
             current_value = self.get_value()
             
@@ -272,6 +284,9 @@ class ComboBoxSettingCard(SettingCard):
         except Exception as e:
             logger.error(f"Error handling setting change for {self.titleLabel.text()}: {str(e)}")
             self._show_error_feedback(f"操作失败: {str(e)}")
+        finally:
+            # Always clear the processing flag
+            self._processing_change = False
     
     def _show_error_feedback(self, message: str):
         """

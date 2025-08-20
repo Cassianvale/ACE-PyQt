@@ -12,7 +12,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.QtWidgets import QLabel, QToolButton, QHBoxLayout
 from qfluentwidgets import FluentIcon as FIF
-from utils.logger import logger
+from app.tools import logger
 
 
 class RangeSettingCard(SettingCard):

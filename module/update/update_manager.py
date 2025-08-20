@@ -7,8 +7,7 @@
 
 import os
 import webbrowser
-from utils.logger import logger
-from utils.version_checker import get_version_checker, create_update_message
+from app.tools import logger, get_version_checker, create_update_message
 from module.config import cfg
 
 

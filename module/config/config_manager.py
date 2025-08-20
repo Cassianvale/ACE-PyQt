@@ -7,9 +7,8 @@
 
 import yaml
 from pathlib import Path
-from utils.logger import logger
-from utils.system_utils import check_auto_start, enable_auto_start, disable_auto_start
-from config.app_config import APP_INFO, DEFAULT_CONFIG, SYSTEM_CONFIG
+from app.tools import logger, check_auto_start, enable_auto_start, disable_auto_start
+from module.config.app_config import APP_INFO, DEFAULT_CONFIG, SYSTEM_CONFIG
 
 
 class ConfigManager:
@@ -17,7 +16,6 @@ class ConfigManager:
 
     # 配置属性映射：(属性名, 配置路径, 类型转换函数, 验证函数)
     CONFIG_MAPPING = {
-        "show_notifications": ("notifications.enabled", bool, None),
         "log_retention_days": ("logging.retention_days", int, None),
         "log_rotation": ("logging.rotation", str, None),
         "debug_mode": ("logging.debug_mode", bool, None),

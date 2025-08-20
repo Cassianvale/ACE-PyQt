@@ -4,7 +4,7 @@
 """设置管理器 - UI层设置同步，业务逻辑已迁移到module层"""
 
 from PyQt5.QtWidgets import QMessageBox
-from utils.logger import logger
+from app.tools import logger
 
 # 业务逻辑模块
 from module.settings.startup import StartupSettings

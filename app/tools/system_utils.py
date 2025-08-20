@@ -114,7 +114,7 @@ def check_auto_start(app_name=None, program_path=None):
     """
     if app_name is None:
         try:
-            from config.app_config import APP_INFO
+            from module.config.app_config import APP_INFO
 
             app_name = APP_INFO["name"]
         except ImportError:
@@ -171,7 +171,7 @@ def enable_auto_start(app_name=None, program_path=None, startup_args=None):
     """
     if app_name is None:
         try:
-            from config.app_config import APP_INFO
+            from module.config.app_config import APP_INFO
 
             app_name = APP_INFO["name"]
         except ImportError:
@@ -219,7 +219,7 @@ def disable_auto_start(app_name=None):
     """
     if app_name is None:
         try:
-            from config.app_config import APP_INFO
+            from module.config.app_config import APP_INFO
 
             app_name = APP_INFO["name"]
         except ImportError:

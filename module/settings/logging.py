@@ -5,7 +5,7 @@
 日志和调试设置业务逻辑
 """
 
-from utils.logger import logger
+from app.tools import logger
 from module.config import cfg
 
 

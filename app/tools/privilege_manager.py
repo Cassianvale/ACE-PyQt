@@ -10,7 +10,7 @@ import ctypes
 import sys
 import win32security
 import win32api
-from utils.logger import logger
+from app.tools import logger
 
 
 class WindowsPrivilegeManager:

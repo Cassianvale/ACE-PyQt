@@ -1,12 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-开机自启动设置业务逻辑
-"""
-
-from utils.logger import logger
-from utils.system_utils import enable_auto_start, disable_auto_start
+from app.tools import logger, enable_auto_start, disable_auto_start
 from module.config import cfg
 
 

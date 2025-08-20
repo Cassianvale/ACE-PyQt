@@ -10,7 +10,7 @@ from qfluentwidgets import SettingCard, FluentIconBase, TimePicker, InfoBar, Inf
 from typing import Union, Optional
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import pyqtSignal, Qt, QTime
-from utils.logger import logger
+from app.tools import logger
 
 
 class TimeSettingCard(SettingCard):

@@ -8,7 +8,7 @@ import os
 from PyQt5.QtCore import pyqtSlot, Qt
 from PyQt5.QtWidgets import QSystemTrayIcon
 from ui.styles import StyleHelper
-from utils.logger import logger
+from app.tools import logger
 from module.update.update_manager import UpdateManager
 from module.config import cfg
 

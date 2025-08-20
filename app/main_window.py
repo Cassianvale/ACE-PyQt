@@ -1,21 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""主窗口模块"""
-
-from contextlib import redirect_stdout
-
-with redirect_stdout(None):
-    from qfluentwidgets import (
-        NavigationItemPosition, MSFluentWindow, FluentIcon as FIF, SplashScreen,
-        setThemeColor, setTheme, Theme
-    )
-    from PyQt5.QtCore import Qt, QSize
-    from PyQt5.QtGui import QIcon
-    from PyQt5.QtWidgets import QApplication
+from qfluentwidgets import (
+    NavigationItemPosition, MSFluentWindow, FluentIcon as FIF, SplashScreen,
+    NavigationBarPushButton, toggleTheme, setThemeColor, setTheme, Theme
+)
+from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QApplication
 
 from .interfaces import HomeInterface, HelpInterface, SettingsInterface, ChangelogInterface
 from .tools.check_theme_change import checkThemeChange
+from .tools import setup_logger
 
 
 class MainWindow(MSFluentWindow):
@@ -64,7 +60,16 @@ class MainWindow(MSFluentWindow):
     def initNavigation(self):
         self.addSubInterface(self.homeInterface,FIF.HOME,self.tr("主页"))
         self.addSubInterface(self.helpInterface,FIF.BOOK_SHELF,self.tr("帮助"))
+        
+        self.navigationInterface.addWidget(
+            'themeButton',
+            NavigationBarPushButton(FIF.BRUSH, '主题', isSelectable=False),
+            lambda: toggleTheme(lazy=True),
+            NavigationItemPosition.BOTTOM)
+        
         self.addSubInterface(self.settingsInterface,FIF.SETTING,self.tr("设置"),position=NavigationItemPosition.BOTTOM)
+        
+        
         
         self.stackedWidget.setCurrentWidget(self.homeInterface)
         

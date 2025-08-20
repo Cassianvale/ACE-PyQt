@@ -5,7 +5,7 @@
 
 from PyQt5.QtCore import pyqtSlot
 from ui.styles import StyleHelper, theme_manager
-from utils.logger import logger
+from app.tools import logger
 from module.theme.theme_manager import ThemeManager
 from module.config import cfg
 

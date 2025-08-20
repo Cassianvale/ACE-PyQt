@@ -6,11 +6,11 @@ Push Setting Card - Action button configuration card with business logic integra
 Enhanced based on March7thAssistant design patterns with dialog support
 """
 
-from qfluentwidgets import SettingCard, FluentIconBase, InfoBar, InfoBarPosition
+from qfluentwidgets import SettingCard, FluentIconBase, InfoBar, InfoBarPosition, PushButton
 from typing import Union, Optional, Dict, Any
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import pyqtSignal, Qt
-from utils.logger import logger
+from app.tools import logger
 from .messagebox_custom import MessageBoxEdit, MessageBoxEditMultiple, MessageBoxDate, MessageBoxCombo, MessageBoxKeyBind, MessageBoxConfig
 
 
@@ -50,12 +50,16 @@ class PushSettingCard(SettingCard):
         self.dialog_config = dialog_config or {}
         self.original_button_text = text
         
+        self.button = PushButton(text, self)
+        self.hBoxLayout.addWidget(self.button, 0, Qt.AlignRight)
+        self.hBoxLayout.addSpacing(16)
+        
         # 如果有配置名称，自动加载并显示当前值
         if self.configname:
             self._load_from_config()
         
         # Connect internal signal
-        self.clicked.connect(self._on_clicked)
+        self.button.clicked.connect(self._on_clicked)
     
     def set_business_handler(self, handler):
         """
