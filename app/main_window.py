@@ -61,11 +61,11 @@ class MainWindow(MSFluentWindow):
         self.addSubInterface(self.homeInterface,FIF.HOME,self.tr("主页"))
         self.addSubInterface(self.helpInterface,FIF.BOOK_SHELF,self.tr("帮助"))
         
-        self.navigationInterface.addWidget(
-            'themeButton',
-            NavigationBarPushButton(FIF.BRUSH, '主题', isSelectable=False),
-            lambda: toggleTheme(lazy=True),
-            NavigationItemPosition.BOTTOM)
+        # self.navigationInterface.addWidget(
+        #     'themeButton',
+        #     NavigationBarPushButton(FIF.BRUSH, '主题', isSelectable=False),
+        #     lambda: toggleTheme(lazy=True),
+        #     NavigationItemPosition.BOTTOM)
         
         self.addSubInterface(self.settingsInterface,FIF.SETTING,self.tr("设置"),position=NavigationItemPosition.BOTTOM)
         

@@ -24,7 +24,6 @@ from module.settings.startup import StartupSettings
 from module.settings.window import WindowSettings
 from module.settings.logging import LoggingSettings
 from module.settings.directory import DirectoryManager
-from module.theme.theme_manager import ThemeManager
 from module.update.update_manager import UpdateManager
 from module.config import cfg
 from app.tools import logger
@@ -215,22 +214,8 @@ class SettingsInterface(ScrollArea):
             # 加载调试模式
             self.debugModeCard.load_value(LoggingSettings.get_debug_mode_status())
             
-            # 加载主题设置
-            current_theme = ThemeManager.get_current_theme()
-            self.themeCard.load_value(current_theme)
-            
-            logger.debug("设置界面加载完成")
-            
         except Exception as e:
             logger.error(f"加载设置界面失败: {str(e)}")
-    
-    def _handle_theme_change(self, theme: str) -> bool:
-        """处理主题变更"""
-        success = ThemeManager.switch_theme(theme)
-        if success:
-            self.themeChangeRequested.emit(theme)
-            self._show_info_bar("主题设置", f"主题已切换为{ThemeManager.get_theme_display_name(theme)}模式")
-        return success
     
     def _handle_check_update(self):
         """处理检查更新"""

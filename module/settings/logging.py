@@ -57,7 +57,7 @@ class LoggingSettings:
     def _reinitialize_logger():
         """重新初始化日志系统"""
         try:
-            from utils.logger import setup_logger
+            from app.tools import setup_logger
             
             setup_logger(
                 log_dir=cfg.log_dir,
