@@ -11,7 +11,6 @@ import ctypes
 import os
 import sys
 import winreg
-from .logger import logger
 
 def run_as_admin():
     """
@@ -41,7 +40,7 @@ def check_single_instance(mutex_name):
 
     mutex = ctypes.windll.kernel32.CreateMutexW(None, False, mutex_name)
     if ctypes.windll.kernel32.GetLastError() == 183:
-        logger.warning("程序已经在运行中，无法启动多个实例！")
+        print("程序已经在运行中，无法启动多个实例！")
         return False
     return True
 
@@ -78,10 +77,10 @@ def show_already_running_dialog(app_name):
             0x00000040 | 0x00040000,  # MB_ICONINFORMATION | MB_TOPMOST
         )
 
-        logger.debug("已显示程序重复运行提醒对话框")
+        print("已显示程序重复运行提醒对话框")
 
     except Exception as e:
-        logger.error(f"显示程序重复运行对话框失败: {str(e)}")
+        print(f"显示程序重复运行对话框失败: {str(e)}")
         # 如果显示对话框失败，至少在控制台输出信息
         print(f"{app_name} 已经在运行中，无法启动多个实例！")
 
@@ -128,30 +127,22 @@ def check_auto_start(app_name=None, program_path=None):
                 # 尝试读取应用的注册表项
                 value, _ = winreg.QueryValueEx(key, app_name)
 
-                # 如果提供了程序路径，验证注册表中的路径是否匹配
                 if program_path:
-                    # 规范化路径进行比较
                     current_path = os.path.normpath(program_path)
-                    registry_path = value.strip('"').split()[0]  # 移除引号和参数
+                    registry_path = value.strip('"').split()[0]
                     registry_path = os.path.normpath(registry_path)
 
                     if current_path.lower() == registry_path.lower():
-                        logger.debug(f"开机自启已设置")
                         return True
                     else:
                         return False
                 else:
-                    # 如果没有提供路径，只检查是否存在
-                    logger.debug(f"开机自启已设置")
                     return True
 
             except FileNotFoundError:
-                # 注册表项不存在
-                logger.debug(f"开机自启未设置: {app_name}")
                 return False
 
     except Exception as e:
-        logger.error(f"检查开机自启状态失败: {str(e)}")
         return False
 
 
@@ -169,7 +160,7 @@ def enable_auto_start(app_name=None, program_path=None, startup_args=None):
     """
     if app_name is None:
         try:
-            
+            from module.config.app_config import APP_INFO
 
             app_name = APP_INFO["name"]
         except ImportError:
@@ -193,15 +184,13 @@ def enable_auto_start(app_name=None, program_path=None, startup_args=None):
         ) as key:
             # 设置注册表值
             winreg.SetValueEx(key, app_name, 0, winreg.REG_SZ, command)
-
-        logger.debug(f"已设置开机自启（注册表）: {app_name} -> {command}")
         return True
 
     except PermissionError:
-        logger.error(f"设置开机自启失败: 权限不足，无法写入注册表")
+        print(f"设置开机自启失败: 权限不足，无法写入注册表")
         return False
     except Exception as e:
-        logger.error(f"设置开机自启失败: {str(e)}")
+        print(f"设置开机自启失败: {str(e)}")
         return False
 
 
@@ -229,16 +218,14 @@ def disable_auto_start(app_name=None):
             winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Run", 0, winreg.KEY_SET_VALUE
         ) as key:
             try:
-                # 删除注册表项
                 winreg.DeleteValue(key, app_name)
-                logger.debug(f"已取消开机自启: {app_name}")
                 return True
             except FileNotFoundError:
                 return True
 
     except PermissionError:
-        logger.error(f"取消开机自启失败: 权限不足，无法修改注册表")
+        print(f"取消开机自启失败: 权限不足，无法修改注册表")
         return False
     except Exception as e:
-        logger.error(f"取消开机自启失败: {str(e)}")
+        print(f"取消开机自启失败: {str(e)}")
         return False

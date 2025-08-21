@@ -14,7 +14,6 @@ from .tools.check_theme_change import checkThemeChange
 from module.config import cfg
 from .tools import setup_logger
 
-cfg.load_config()
 setup_logger(
     log_dir=cfg.log_dir,
     log_retention_days=cfg.log_retention_days,
