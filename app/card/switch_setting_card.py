@@ -1,11 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-Switch Setting Card - Boolean configuration card that automatically binds to business logic
-Enhanced based on March7thAssistant design patterns
-"""
-
 from qfluentwidgets import SettingCard, FluentIconBase, SwitchButton, InfoBar, InfoBarPosition
 from typing import Union, Optional
 from PyQt5.QtGui import QIcon
@@ -14,10 +9,6 @@ from app.tools import logger
 
 
 class SwitchSettingCard(SettingCard):
-    """
-    Enhanced Switch Setting Card with automatic configuration binding and enhanced UX
-    参考 March7thAssistant 的设计模式，支持自动配置绑定和智能用户反馈
-    """
 
     valueChanged = pyqtSignal(bool)
     
@@ -94,10 +85,8 @@ class SwitchSettingCard(SettingCard):
         self._initializing = True
         try:
             self.switchButton.setChecked(value)
-            # 更新开关状态文字显示
             if self.show_indicator:
                 self.switchButton.setText(self.tr("on") if value else self.tr("off"))
-            logger.debug(f"Loaded value for {self.titleLabel.text()}: {value}")
         finally:
             self._initializing = False
     
@@ -166,7 +155,7 @@ class SwitchSettingCard(SettingCard):
         
         # 更新开关状态文字显示
         if self.show_indicator:
-            self.switchButton.setText(self.tr('开') if checked else self.tr('关'))
+            self.switchButton.setText(self.tr('on') if checked else self.tr('off'))
         
         try:
             # 优先使用业务逻辑处理器

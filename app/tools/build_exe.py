@@ -5,7 +5,7 @@ import shutil
 import argparse
 import re
 from utils import get_app_version
-from config import ConfigManager
+from module.config import ConfigManager
 
 # 设置标准输出编码为UTF-8，解决Windows环境下中文输出问题
 if sys.stdout.encoding != 'utf-8':

@@ -1,11 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-Combo Box Setting Card - Selection configuration card with business logic integration
-Enhanced based on March7thAssistant design patterns with key-value mapping support
-"""
-
 from qfluentwidgets import SettingCard, FluentIconBase, ComboBox, InfoBar, InfoBarPosition
 from typing import Union, Optional, Dict, List
 from PyQt5.QtGui import QIcon
@@ -14,11 +9,7 @@ from app.tools import logger
 
 
 class ComboBoxSettingCard(SettingCard):
-    """
-    Enhanced ComboBox Setting Card with automatic configuration binding and key-value mapping
-    参考 March7thAssistant 的设计模式，支持键值对映射和智能配置绑定
-    """
-    
+
     # 设置值变化信号
     valueChanged = pyqtSignal(str)
     
@@ -58,7 +49,7 @@ class ComboBoxSettingCard(SettingCard):
         if self.configname:
             self._load_from_config()
         
-        # Connect internal signal
+        # Connect internal signal - 在选项设置完成后连接
         self.comboBox.currentTextChanged.connect(self._on_text_changed)
     
     def set_business_handler(self, handler):
@@ -94,6 +85,12 @@ class ComboBoxSettingCard(SettingCard):
         Args:
             options (list or dict): List of option strings, or dict mapping values to display text
         """
+        # 临时断开信号连接，避免在设置选项时触发
+        try:
+            self.comboBox.currentTextChanged.disconnect(self._on_text_changed)
+        except:
+            pass  # 如果没有连接则忽略错误
+            
         self.comboBox.clear()
         self._option_mapping.clear()
         self._reverse_mapping.clear()
@@ -117,6 +114,9 @@ class ComboBoxSettingCard(SettingCard):
                 self.comboBox.setItemData(index, option)
         else:
             logger.warning(f"Invalid options type for {self.titleLabel.text()}: {type(options)}")
+        
+        # 重新连接信号
+        self.comboBox.currentTextChanged.connect(self._on_text_changed)
     
     def add_option(self, value: str, display_text: Optional[str] = None):
         """

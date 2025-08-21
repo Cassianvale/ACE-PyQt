@@ -21,20 +21,12 @@ class StartupSettings:
             bool: 操作是否成功
         """
         try:
-            # 更新配置
             cfg.auto_start = enabled
             
-            # 修改注册表
-            if enabled:
-                enable_auto_start(app_name)
-                logger.info(f"已启用开机自启动: {app_name}")
-            else:
+            if not enabled:
                 disable_auto_start(app_name)
-                logger.info(f"已禁用开机自启动: {app_name}")
-            
-            # 保存配置
+
             if cfg.save_config():
-                logger.debug(f"开机自启状态已保存: {'开启' if enabled else '关闭'}")
                 return True
             else:
                 logger.warning(f"开机自启状态已更改但保存失败: {'开启' if enabled else '关闭'}")
@@ -66,12 +58,9 @@ class StartupSettings:
             bool: 操作是否成功
         """
         try:
-            # 更新配置
             cfg.check_update_on_start = enabled
             
-            # 保存配置
             if cfg.save_config():
-                logger.debug(f"启动时检查更新设置已保存: {'开启' if enabled else '关闭'}")
                 return True
             else:
                 logger.warning("启动时检查更新设置保存失败")

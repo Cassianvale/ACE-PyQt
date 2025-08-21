@@ -1,25 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""设置界面模块 - 纯UI层，业务逻辑已分离到module层"""
-
 from contextlib import redirect_stdout
 
 with redirect_stdout(None):
     from qfluentwidgets import (
         ScrollArea, VBoxLayout,
-        SettingCardGroup, StrongBodyLabel, FluentIcon as FLF,
+        SettingCardGroup, StrongBodyLabel, FluentIcon as FIF,
         OptionsConfigItem, OptionsValidator, InfoBar, InfoBarPosition
     )
-    from PyQt5.QtWidgets import QWidget, QVBoxLayout
-    from PyQt5.QtCore import Qt, pyqtSignal, QTimer
+from PyQt5.QtWidgets import QWidget, QVBoxLayout
+from PyQt5.QtCore import Qt, pyqtSignal, QTimer
 
 from ..common.style_sheet import StyleSheet
 from ..card.switch_setting_card import SwitchSettingCard
 from ..card.combo_setting_card import ComboBoxSettingCard
 from ..card.push_setting_card import PushSettingCard
 
-# 业务逻辑模块
 from module.settings.startup import StartupSettings
 from module.settings.window import WindowSettings
 from module.settings.logging import LoggingSettings
@@ -31,9 +28,7 @@ from app.tools import logger
 
 
 class SettingsInterface(ScrollArea):
-    """设置界面 - 纯UI层"""
-    
-    # UI事件信号
+
     themeChangeRequested = pyqtSignal(str)
     updateCheckRequested = pyqtSignal()
     
@@ -93,7 +88,7 @@ class SettingsInterface(ScrollArea):
         
         # 开机自启动
         self.autoStartCard = SwitchSettingCard(
-            FLF.POWER_BUTTON,
+            FIF.POWER_BUTTON,
             "开机自启动",
             "开机时自动启动应用程序",
             business_handler=lambda enabled: StartupSettings.toggle_auto_start(enabled, cfg.get_app_name()),
@@ -102,7 +97,7 @@ class SettingsInterface(ScrollArea):
         
         # 启动时检查更新
         self.checkUpdateOnStartCard = SwitchSettingCard(
-            FLF.UPDATE,
+            FIF.UPDATE,
             "启动时检查更新",
             "应用启动时自动检查是否有新版本",
             business_handler=StartupSettings.toggle_check_update_on_start,
@@ -111,7 +106,7 @@ class SettingsInterface(ScrollArea):
         
         # 关闭行为
         self.closeBehaviorCard = ComboBoxSettingCard(
-            FLF.CLOSE,
+            FIF.CLOSE,
             "关闭行为",
             "设置点击关闭按钮时的行为",
             texts=["直接退出", "最小化到托盘"],
@@ -121,7 +116,7 @@ class SettingsInterface(ScrollArea):
         
         # 调试模式
         self.debugModeCard = SwitchSettingCard(
-            FLF.DEVELOPER_TOOLS,
+            FIF.DEVELOPER_TOOLS,
             "调试模式",
             "启用调试模式以获取更详细的日志信息",
             business_handler=LoggingSettings.toggle_debug_mode,
@@ -145,7 +140,7 @@ class SettingsInterface(ScrollArea):
             "dark": "深色模式"
         }
         self.themeCard = ComboBoxSettingCard(
-            FLF.BRUSH,
+            FIF.BRUSH,
             "应用主题",
             "选择应用程序的主题风格",
             business_handler=self._handle_theme_change,
@@ -163,7 +158,7 @@ class SettingsInterface(ScrollArea):
         # 打开配置目录
         self.openConfigDirCard = PushSettingCard(
             "打开目录",
-            FLF.FOLDER,
+            FIF.FOLDER,
             "配置文件目录",
             "打开应用程序配置文件所在目录",
             business_handler=DirectoryManager.open_config_directory,
@@ -173,7 +168,7 @@ class SettingsInterface(ScrollArea):
         # 打开日志目录
         self.openLogDirCard = PushSettingCard(
             "打开目录",
-            FLF.DOCUMENT,
+            FIF.DOCUMENT,
             "日志文件目录",
             "打开应用程序日志文件所在目录",
             business_handler=DirectoryManager.open_log_directory,
@@ -191,7 +186,7 @@ class SettingsInterface(ScrollArea):
         # 检查更新
         self.checkUpdateCard = PushSettingCard(
             "检查更新",
-            FLF.UPDATE,
+            FIF.UPDATE,
             "检查更新",
             "检查应用程序是否有新版本",
             business_handler=self._handle_check_update,
@@ -217,8 +212,7 @@ class SettingsInterface(ScrollArea):
             
             # 加载主题设置
             current_theme = ThemeManager.get_current_theme()
-            theme_display_name = ThemeManager.get_theme_display_name(current_theme)
-            self.themeCard.load_value(theme_display_name)
+            self.themeCard.load_value(current_theme)
             
         except Exception as e:
             logger.error(f"加载设置界面失败: {str(e)}")
@@ -281,32 +275,29 @@ class SettingsInterface(ScrollArea):
         except Exception as e:
             logger.error(f"显示信息条失败: {str(e)}")
     
-    def _handle_theme_change(self, theme_display_name: str):
+    def _handle_theme_change(self, theme_value: str):
         """处理主题变更
         
         Args:
-            theme_display_name (str): 主题显示名称
+            theme_value (str): 主题值 ('auto', 'light', 'dark')
             
         Returns:
             bool: 主题切换是否成功
         """
         try:
-            # 支持中文和英文主题标识符
-            theme_mapping = {
-                # 中文显示名称
-                "跟随系统": "auto",
-                "浅色模式": "light", 
-                "深色模式": "dark",
-                # 英文标识符（直接使用）
-                "auto": "auto",
-                "light": "light",
-                "dark": "dark"
-            }
+            # 直接使用传入的主题值，应该是 auto/light/dark
+            theme = theme_value
             
-            theme = theme_mapping.get(theme_display_name)
-            if theme is None:
-                logger.error(f"无效的主题显示名称: {theme_display_name}")
+            # 使用ThemeManager验证主题有效性
+            if not ThemeManager._is_valid_theme(theme):
+                logger.error(f"无效的主题值: {theme}")
                 return False
+            
+            # 检查是否实际需要切换主题
+            current_theme = ThemeManager.get_current_theme()
+            if current_theme == theme:
+                logger.debug(f"主题未变更，跳过切换: {theme}")
+                return True
             
             # 切换主题并保存配置
             success = ThemeManager.switch_theme(theme)

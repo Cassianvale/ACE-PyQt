@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-更新检查业务逻辑
-"""
-
 import os
 import webbrowser
 from app.tools import logger, get_version_checker, create_update_message
@@ -12,7 +8,6 @@ from module.config import cfg
 
 
 class UpdateManager:
-    """更新管理业务逻辑"""
     
     def __init__(self):
         self.version_checker = None

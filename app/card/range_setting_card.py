@@ -1,25 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-Range Setting Card - Slider-based numeric configuration card
-Enhanced based on March7thAssistant design patterns
-"""
-
-from qfluentwidgets import SettingCard, FluentIconBase, Slider, InfoBar, InfoBarPosition
+from qfluentwidgets import FluentIcon as FIF, SettingCard, FluentIconBase, Slider, InfoBar, InfoBarPosition
 from typing import Union, Optional, Tuple
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.QtWidgets import QLabel, QToolButton, QHBoxLayout
-from qfluentwidgets import FluentIcon as FIF
 from app.tools import logger
 
 
 class RangeSettingCard(SettingCard):
-    """
-    Range Setting Card with slider and increment/decrement buttons
-    参考 March7thAssistant 的 RangeSettingCard1 设计，支持多种交互方式
-    """
     
     valueChanged = pyqtSignal(int)
     
@@ -303,3 +293,4 @@ class RangeSettingCard(SettingCard):
             )
         except Exception as e:
             logger.error(f"Failed to show error feedback: {str(e)}")
+            

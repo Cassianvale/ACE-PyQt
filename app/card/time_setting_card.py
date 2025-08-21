@@ -1,11 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-Time Setting Card - Time picker configuration card
-Enhanced based on March7thAssistant design patterns
-"""
-
 from qfluentwidgets import SettingCard, FluentIconBase, TimePicker, InfoBar, InfoBarPosition
 from typing import Union, Optional
 from PyQt5.QtGui import QIcon
@@ -14,11 +9,7 @@ from app.tools import logger
 
 
 class TimeSettingCard(SettingCard):
-    """
-    Time Setting Card with time picker
-    参考 March7thAssistant 的 TimePickerSettingCard1 设计
-    """
-    
+
     valueChanged = pyqtSignal(str)  # 发送 "HH:mm" 格式的时间字符串
     timeChanged = pyqtSignal(QTime)  # 发送 QTime 对象
     

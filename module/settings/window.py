@@ -24,12 +24,9 @@ class WindowSettings:
             bool: 操作是否成功
         """
         try:
-            # 更新配置
             cfg.close_to_tray = close_to_tray
             
-            # 保存配置
             if cfg.save_config():
-                logger.debug(f"关闭行为设置已保存: {'最小化到后台' if close_to_tray else '直接退出'}")
                 return True
             else:
                 logger.warning(f"关闭行为设置已更改但保存失败: {'最小化到后台' if close_to_tray else '直接退出'}")

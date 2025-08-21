@@ -137,14 +137,14 @@ def check_auto_start(app_name=None, program_path=None):
                     registry_path = os.path.normpath(registry_path)
 
                     if current_path.lower() == registry_path.lower():
-                        logger.debug(f"开机自启已设置且路径正确: {app_name} -> {value}")
+                        logger.debug(f"开机自启已设置")
                         return True
                     else:
                         logger.warning(f"开机自启路径不匹配: 当前={current_path}, 注册表={registry_path}")
                         return False
                 else:
                     # 如果没有提供路径，只检查是否存在
-                    logger.debug(f"开机自启已设置: {app_name} -> {value}")
+                    logger.debug(f"开机自启已设置")
                     return True
 
             except FileNotFoundError:

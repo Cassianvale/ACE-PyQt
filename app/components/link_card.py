@@ -1,9 +1,11 @@
-# coding:utf-8
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from PyQt5.QtCore import Qt, QUrl
 from PyQt5.QtGui import QPixmap, QDesktopServices
 from PyQt5.QtWidgets import QFrame, QLabel, QVBoxLayout, QWidget, QHBoxLayout
 
-from qfluentwidgets import IconWidget, FluentIcon, TextWrap, SingleDirectionScrollArea
+from qfluentwidgets import FluentIcon as FIF, IconWidget, TextWrap, SingleDirectionScrollArea
 from ..common.style_sheet import StyleSheet
 
 
@@ -17,7 +19,7 @@ class LinkCard(QFrame):
         self.titleLabel = QLabel(title, self)
         self.contentLabel = QLabel(TextWrap.wrap(content, 28, False)[0], self)
         self.contentLabel.setStyleSheet("font-size: 14px; font-weight: 600;")
-        self.urlWidget = IconWidget(FluentIcon.LINK, self)
+        self.urlWidget = IconWidget(FIF.LINK, self)
 
         self.__initWidget()
 

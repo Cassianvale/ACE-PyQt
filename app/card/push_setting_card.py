@@ -1,11 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-Push Setting Card - Action button configuration card with business logic integration
-Enhanced based on March7thAssistant design patterns with dialog support
-"""
-
 from qfluentwidgets import SettingCard, FluentIconBase, InfoBar, InfoBarPosition, PushButton
 from typing import Union, Optional, Dict, Any
 from PyQt5.QtGui import QIcon
@@ -15,10 +10,6 @@ from .messagebox_custom import MessageBoxEdit, MessageBoxEditMultiple, MessageBo
 
 
 class PushSettingCard(SettingCard):
-    """
-    Enhanced Push Setting Card with business logic integration and dialog support
-    参考 March7thAssistant 的设计模式，支持多种对话框类型和智能配置绑定
-    """
     
     # 按钮点击信号
     actionRequested = pyqtSignal()

@@ -1,18 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""主页界面模块"""
-
 from contextlib import redirect_stdout
 
 with redirect_stdout(None):
     from qfluentwidgets import (
         ScrollArea, VBoxLayout,
         CardWidget, StrongBodyLabel, CaptionLabel,
-        FluentIcon, IconWidget, PushButton
+        FluentIcon as FIF, IconWidget, PushButton
     )
-    from PyQt5.QtWidgets import QWidget, QFrame, QHBoxLayout, QVBoxLayout
-    from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QWidget, QFrame, QHBoxLayout, QVBoxLayout
+from PyQt5.QtCore import Qt
 
 from ..common.style_sheet import StyleSheet
 
@@ -82,19 +80,19 @@ class HomeInterface(ScrollArea):
             {
                 "title": "自动化任务",
                 "description": "配置和管理各种自动化任务",
-                "icon": FluentIcon.PLAY,
+                "icon": FIF.PLAY,
                 "action": self._onAutomationClicked
             },
             {
                 "title": "设置配置",
                 "description": "个性化设置和偏好配置",
-                "icon": FluentIcon.SETTING,
+                "icon": FIF.SETTING,
                 "action": self._onSettingsClicked
             },
             {
                 "title": "日志查看",
                 "description": "查看应用程序运行日志",
-                "icon": FluentIcon.DOCUMENT,
+                "icon": FIF.DOCUMENT,
                 "action": self._onLogsClicked
             }
         ]

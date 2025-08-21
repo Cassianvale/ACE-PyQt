@@ -1,7 +1,8 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 class SingletonMeta(type):
-    """
-    一个用于创建单例的元类
-    """
+
     _instances = {}
 
     def __call__(cls, *args, **kwargs):

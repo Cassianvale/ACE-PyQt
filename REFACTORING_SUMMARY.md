@@ -107,7 +107,7 @@ class SwitchSettingCard(BaseSwitchSettingCard):
 ```python
 # app/interfaces/settings_interface.py - 纯UI组件
 self.autoStartCard = SwitchSettingCard(
-    FLF.POWER_BUTTON,
+    FIF.POWER_BUTTON,
     "开机自启动",
     "开机时自动启动应用程序",
     business_handler=lambda enabled: StartupSettings.toggle_auto_start(enabled, cfg.get_app_name()),
@@ -190,7 +190,7 @@ class LanguageSettings:
 
 # 2. 在设置界面添加卡片
 self.languageCard = ComboBoxSettingCard(
-    FLF.LOCALE,
+    FIF.LOCALE,
     "界面语言",
     "选择应用程序界面语言",
     texts=["中文", "English"],

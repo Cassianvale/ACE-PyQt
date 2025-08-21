@@ -1,27 +1,30 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import yaml
+import copy
+import threading
 from pathlib import Path
+from typing import Any, Dict
+from ruamel.yaml import YAML
+
 from app.tools import logger, check_auto_start, enable_auto_start, disable_auto_start
 from module.config.app_config import APP_INFO, DEFAULT_CONFIG, SYSTEM_CONFIG
-from ruamel.yaml import YAML
 from utils.singleton import SingletonMeta
 
+
 class ConfigManager(metaclass=SingletonMeta):
-    """配置管理类"""
 
     # 配置属性映射：(属性名, 配置路径, 类型转换函数, 验证函数)
     CONFIG_MAPPING = {
-        "log_retention_days": ("logging.retention_days", int, None),
-        "log_rotation": ("logging.rotation", str, None),
+        "log_retention_days": ("logging.retention_days", int, lambda x: x if x > 0 else None),
+        "log_rotation": ("logging.rotation", str, lambda x: x if x in ["1 day", "1 week", "1 month"] else None),
         "debug_mode": ("logging.debug_mode", bool, None),
         "auto_start": ("application.auto_start", bool, None),
         "close_to_tray": ("application.close_to_tray", bool, None),
         "theme": ("application.theme", str, lambda x: x if x in ["auto", "light", "dark"] else None),
         "check_update_on_start": ("application.check_update_on_start", bool, None),
-        "window_width": ("window.width", int, None),
-        "window_height": ("window.height", int, None),
+        "window_width": ("window.width", int, lambda x: x if 300 <= x <= 3000 else None),
+        "window_height": ("window.height", int, lambda x: x if 200 <= x <= 2000 else None),
     }
 
     def __init__(self, custom_app_info=None, custom_default_config=None, custom_system_config=None):
@@ -33,6 +36,15 @@ class ConfigManager(metaclass=SingletonMeta):
             custom_default_config (dict, optional): 自定义默认配置，用于覆盖默认值
             custom_system_config (dict, optional): 自定义系统配置，用于覆盖默认值
         """
+        # 线程锁，确保线程安全
+        self._lock = threading.RLock()
+        
+        # YAML实例，使用ruamel.yaml保持格式化
+        self._yaml = YAML()
+        self._yaml.preserve_quotes = True
+        self._yaml.width = 4096
+        self._yaml.indent(mapping=2, sequence=4, offset=2)
+        
         # 合并配置
         self.app_info = self._merge_config(APP_INFO, custom_app_info)
         self.default_config = self._merge_config(DEFAULT_CONFIG, custom_default_config, deep=True)
@@ -152,47 +164,47 @@ class ConfigManager(metaclass=SingletonMeta):
         # 确保日志目录存在
         try:
             self.log_dir.mkdir(parents=True, exist_ok=True)
-            logger.debug(f"已创建日志目录: {self.log_dir}")
         except Exception as e:
             logger.error(f"创建日志目录失败: {str(e)}")
 
-    def load_config(self):
+    def load_config(self) -> bool:
         """
         加载配置文件
 
         Returns:
             bool: 是否加载成功
         """
-        if not self.config_file.exists():
-            logger.debug("配置文件不存在，将创建默认配置文件")
-            return self._create_default_config()
+        with self._lock:
+            try:
+                if not self.config_file.exists():
+                    logger.debug("配置文件不存在，将创建默认配置文件")
+                    return self._create_default_config()
 
-        try:
-            with self.config_file.open("r", encoding="utf-8") as f:
-                config_data = yaml.safe_load(f)
+                with self.config_file.open("r", encoding="utf-8") as f:
+                    config_data = self._yaml.load(f)
 
-            if not config_data:
-                logger.warning("配置文件为空或无效，将使用默认配置")
+                if not config_data:
+                    logger.warning("配置文件为空或无效，将使用默认配置")
+                    return self._create_default_config()
+
+                # 加载所有配置属性
+                self._load_config_attributes(config_data)
+
+                # 处理特殊的开机自启逻辑
+                self._handle_auto_start_config(config_data)
+
+                return True
+
+            except Exception as e:
+                logger.error(f"加载配置文件失败: {str(e)}")
                 return self._create_default_config()
 
-            # 使用统一的方法加载所有配置
-            self._load_config_attributes(config_data)
-
-            # 处理特殊的开机自启逻辑
-            self._handle_auto_start_config(config_data)
-
-            return True
-
-        except Exception as e:
-            logger.error(f"加载配置文件失败: {str(e)}")
-            return self._create_default_config()
-
-    def _load_config_attributes(self, config_data):
+    def _load_config_attributes(self, config_data: Dict[str, Any]) -> None:
         """
-        从配置数据中加载所有配置属性
+        从配置数据中加载所有配置属性（带深拷贝保护）
 
         Args:
-            config_data (dict): 配置数据
+            config_data: 配置数据
         """
         for attr_name, (config_path, type_func, validator) in self.CONFIG_MAPPING.items():
             value = self._get_nested_value(config_data, config_path)
@@ -209,8 +221,9 @@ class ConfigManager(metaclass=SingletonMeta):
                             continue
                         converted_value = validated_value
 
-                    setattr(self, attr_name, converted_value)
-                    logger.debug(f"已从配置文件加载 {attr_name}: {converted_value}")
+                    # 深拷贝保护可变对象
+                    safe_value = self._safe_copy_value(converted_value)
+                    setattr(self, attr_name, safe_value)
 
                 except (ValueError, TypeError) as e:
                     logger.warning(f"配置项 {config_path} 类型转换失败: {e}，使用默认值")
@@ -241,8 +254,7 @@ class ConfigManager(metaclass=SingletonMeta):
             # 如果配置中没有自启设置，检查系统中是否已设置
             if check_auto_start(self.app_info["name"]):
                 self.auto_start = True
-                logger.debug("检测到系统中已设置开机自启，已更新配置")
-
+                
     def _create_default_config(self):
         """
         创建默认配置文件
@@ -252,7 +264,7 @@ class ConfigManager(metaclass=SingletonMeta):
         """
         try:
             with self.config_file.open("w", encoding="utf-8") as f:
-                yaml.dump(self.default_config, f, default_flow_style=False, allow_unicode=True)
+                self._yaml.dump(self.default_config, f)
 
             # 重新初始化配置属性为默认值
             self._init_config_attributes()
@@ -261,22 +273,25 @@ class ConfigManager(metaclass=SingletonMeta):
             logger.error(f"创建默认配置文件失败: {str(e)}")
             return False
 
-    def save_config(self):
+    def save_config(self) -> bool:
         """
         保存配置到文件
 
         Returns:
             bool: 保存是否成功
         """
-        try:
-            config_data = self._build_config_data()
-            with self.config_file.open("w", encoding="utf-8") as f:
-                yaml.dump(config_data, f, default_flow_style=False, allow_unicode=True)
+        with self._lock:
+            try:
+                config_data = self._build_config_data()
+                
+                with self.config_file.open("w", encoding="utf-8") as f:
+                    self._yaml.dump(config_data, f)
 
-            return True
-        except Exception as e:
-            logger.error(f"保存配置文件失败: {str(e)}")
-            return False
+                return True
+                
+            except Exception as e:
+                logger.error(f"保存配置文件失败: {str(e)}")
+                return False
 
     def _build_config_data(self):
         """
@@ -290,8 +305,113 @@ class ConfigManager(metaclass=SingletonMeta):
             value = getattr(self, attr_name)
             self._set_nested_value(config_data, config_path, value)
         return config_data
+    
+    def _safe_copy_value(self, value: Any) -> Any:
+        """
+        安全拷贝值，对可变对象进行深拷贝
+        
+        Args:
+            value: 要拷贝的值
+            
+        Returns:
+            安全的值副本
+        """
+        if isinstance(value, (list, dict, set)):
+            return copy.deepcopy(value)
+        return value
+    
+    def get_value(self, key: str, default: Any = None) -> Any:
+        """
+        获取配置项的值，如果值是可变对象，则返回其拷贝
+        
+        Args:
+            key: 配置项名称
+            default: 默认值
+            
+        Returns:
+            配置项的值
+        """
+        with self._lock:
+            # 首先检查是否是映射的属性
+            for attr_name, (config_path, _, _) in self.CONFIG_MAPPING.items():
+                if attr_name == key:
+                    value = getattr(self, attr_name, default)
+                    return self._safe_copy_value(value)
+            
+            # 如果不是映射属性，检查直接属性
+            if hasattr(self, key):
+                value = getattr(self, key)
+                return self._safe_copy_value(value)
+            
+            return default
+    
+    def set_value(self, key: str, value: Any) -> bool:
+        """
+        设置配置项的值并保存
+        
+        Args:
+            key: 配置项名称
+            value: 要设置的值
+            
+        Returns:
+            bool: 设置是否成功
+        """
+        with self._lock:
+            try:
+                # 重新加载配置确保数据最新
+                self.load_config()
+                
+                # 深拷贝保护
+                safe_value = self._safe_copy_value(value)
+                
+                # 检查是否是映射的属性
+                for attr_name, (config_path, type_func, validator) in self.CONFIG_MAPPING.items():
+                    if attr_name == key:
+                        # 类型验证和转换
+                        try:
+                            converted_value = type_func(safe_value)
+                            if validator:
+                                validated_value = validator(converted_value)
+                                if validated_value is None:
+                                    logger.error(f"配置项 {key} 的值 {safe_value} 验证失败")
+                                    return False
+                                converted_value = validated_value
+                            safe_value = converted_value
+                        except (ValueError, TypeError) as e:
+                            logger.error(f"配置项 {key} 类型转换失败: {e}")
+                            return False
+                        break
+                
+                setattr(self, key, safe_value)
+                return self.save_config()
+                
+            except Exception as e:
+                logger.error(f"设置配置项 {key} 失败: {str(e)}")
+                return False
+    
+    def __getattr__(self, attr: str) -> Any:
+        """
+        允许通过属性访问配置项的值（带深拷贝保护）
+        
+        Args:
+            attr: 属性名
+            
+        Returns:
+            属性值
+        """
+        # 避免递归调用
+        if attr.startswith('_'):
+            raise AttributeError(f"'{type(self).__name__}' 对象没有属性 '{attr}'")
+        
+        # 检查是否是配置映射中的属性
+        if attr in [name for name, _ in self.CONFIG_MAPPING.keys()]:
+            value = object.__getattribute__(self, attr)
+            return self._safe_copy_value(value)
+        
+        raise AttributeError(f"'{type(self).__name__}' 对象没有属性 '{attr}'")
 
-    # 应用信息获取方法
+    # ==================== 应用信息获取方法 ====================
+    
     def get_app_name(self):
         """获取应用名称"""
         return self.app_info["name"]
@@ -324,7 +444,8 @@ class ConfigManager(metaclass=SingletonMeta):
         """获取是否要求管理员权限启动应用程序"""
         return self.system_config.get("require_admin_privileges", True)
 
-    # 窗口尺寸相关方法
+    # ==================== 窗口尺寸相关方法 ====================
+    
     def save_window_size(self, width, height):
         """
         保存窗口尺寸到配置文件
