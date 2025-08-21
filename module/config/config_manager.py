@@ -7,7 +7,8 @@ from pathlib import Path
 from typing import Any, Dict
 from ruamel.yaml import YAML
 
-from app.tools import logger, check_auto_start, enable_auto_start, disable_auto_start
+from app.tools import check_auto_start, enable_auto_start, disable_auto_start
+from app.tools.logger import logger
 from module.config.app_config import APP_INFO, DEFAULT_CONFIG, SYSTEM_CONFIG
 from utils.singleton import SingletonMeta
 
@@ -443,6 +444,35 @@ class ConfigManager(metaclass=SingletonMeta):
     def get_require_admin_privileges(self):
         """获取是否要求管理员权限启动应用程序"""
         return self.system_config.get("require_admin_privileges", True)
+
+    def _sync_from_instance(self, other_instance):
+        """
+        从另一个ConfigManager实例同步配置
+
+        Args:
+            other_instance: 另一个ConfigManager实例
+        """
+        with self._lock:
+            try:
+                # 同步所有映射的配置属性
+                for attr_name in self.CONFIG_MAPPING.keys():
+                    if hasattr(other_instance, attr_name):
+                        setattr(self, attr_name, getattr(other_instance, attr_name))
+
+                # 同步路径信息
+                self.config_dir = other_instance.config_dir
+                self.log_dir = other_instance.log_dir
+                self.config_file = other_instance.config_file
+
+                # 同步配置字典
+                self.app_info = other_instance.app_info.copy()
+                self.default_config = copy.deepcopy(other_instance.default_config)
+                self.system_config = other_instance.system_config.copy()
+
+                logger.debug("配置管理器实例同步完成")
+
+            except Exception as e:
+                logger.error(f"配置管理器实例同步失败: {str(e)}")
 
     # ==================== 窗口尺寸相关方法 ====================
     

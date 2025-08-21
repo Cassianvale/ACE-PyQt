@@ -70,33 +70,3 @@ def setup_logger(log_dir, log_retention_days=7, log_rotation="1 day", debug_mode
         logger.add(sys.stderr, level="ERROR")
         logger.error(f"日志系统配置失败: {e}")
         raise
-
-
-if __name__ == "__main__":
-    """测试日志系统"""
-    import tempfile
-
-    with tempfile.TemporaryDirectory() as temp_dir:
-        try:
-            setup_logger(temp_dir, debug_mode=True)
-
-            logger.debug("这是一条调试日志")
-            logger.info("这是一条信息日志")
-            logger.warning("这是一条警告日志")
-            logger.error("这是一条错误日志")
-            logger.critical("这是一条严重日志")
-
-            # 模拟异常以记录堆栈跟踪信息
-            try:
-                1 / 0
-            except ZeroDivisionError:
-                logger.exception("发生了除零异常")
-
-            print("✅ 日志测试完成")
-
-            logger.remove()
-
-        except Exception as e:
-            print(f"❌ 日志测试失败: {e}")
-            logger.remove()  # 确保清理
-            raise

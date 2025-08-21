@@ -13,7 +13,6 @@ import sys
 import winreg
 from .logger import logger
 
-
 def run_as_admin():
     """
     判断是否以管理员权限运行，如果不是则尝试获取管理员权限
@@ -140,7 +139,6 @@ def check_auto_start(app_name=None, program_path=None):
                         logger.debug(f"开机自启已设置")
                         return True
                     else:
-                        logger.warning(f"开机自启路径不匹配: 当前={current_path}, 注册表={registry_path}")
                         return False
                 else:
                     # 如果没有提供路径，只检查是否存在
@@ -171,7 +169,7 @@ def enable_auto_start(app_name=None, program_path=None, startup_args=None):
     """
     if app_name is None:
         try:
-            from module.config.app_config import APP_INFO
+            
 
             app_name = APP_INFO["name"]
         except ImportError:

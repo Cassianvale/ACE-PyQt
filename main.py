@@ -11,14 +11,12 @@ import queue
 import argparse
 
 from module.config import ConfigManager, APP_INFO, DEFAULT_CONFIG, SYSTEM_CONFIG
-from utils import (
+from app.tools import (
     run_as_admin,
     check_single_instance,
     logger,
     setup_logger,
-    find_icon_path,
-    send_notification,
-    create_notification_thread,
+    get_app_version,
     check_for_update,
 )
 
@@ -87,21 +85,25 @@ def main(custom_app_info=None, custom_default_config=None, custom_system_config=
         # 使用新的PyQt-Fluent-Widgets界面
         from app.main_window import MainWindow
         from contextlib import redirect_stdout
-        
+
+        # 确保全局cfg实例与config_manager同步
+        from module.config import cfg
+        cfg._sync_from_instance(config_manager)
+
         with redirect_stdout(None):
             from PyQt5.QtWidgets import QApplication
             from PyQt5.QtCore import Qt
-        
+
         # 启用高DPI支持
         QApplication.setHighDpiScaleFactorRoundingPolicy(
             Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
         )
         QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
         QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
-        
+
         app = QApplication(sys.argv)
         window = MainWindow()
-        
+
         if not start_minimized:
             window.show()
     else:

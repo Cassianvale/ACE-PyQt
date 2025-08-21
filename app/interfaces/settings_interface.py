@@ -202,18 +202,22 @@ class SettingsInterface(ScrollArea):
             # 加载应用设置
             self.autoStartCard.load_value(StartupSettings.get_auto_start_status())
             self.checkUpdateOnStartCard.load_value(StartupSettings.get_check_update_on_start_status())
-            
+
             # 加载关闭行为
             close_to_tray = WindowSettings.get_close_behavior()
             self.closeBehaviorCard.load_value("最小化到托盘" if close_to_tray else "直接退出")
-            
+
             # 加载调试模式
             self.debugModeCard.load_value(LoggingSettings.get_debug_mode_status())
-            
+
             # 加载主题设置
             current_theme = ThemeManager.get_current_theme()
             self.themeCard.load_value(current_theme)
-            
+
+            # 确保主题在设置界面初始化时也被应用
+            # 这是一个额外的保障，确保主题配置被正确应用
+            ThemeManager.apply_theme_from_config()
+
         except Exception as e:
             logger.error(f"加载设置界面失败: {str(e)}")
     

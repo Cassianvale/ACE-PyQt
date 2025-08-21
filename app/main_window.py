@@ -3,7 +3,7 @@
 
 from qfluentwidgets import (
     NavigationItemPosition, MSFluentWindow, FluentIcon as FIF, SplashScreen,
-    NavigationBarPushButton, toggleTheme, setThemeColor, setTheme, Theme
+    NavigationBarPushButton, toggleTheme, setThemeColor
 )
 from PyQt5.QtCore import Qt, QSize, QEventLoop, QTimer
 from PyQt5.QtGui import QIcon
@@ -11,7 +11,16 @@ from PyQt5.QtWidgets import QApplication
 
 from .interfaces import HomeInterface, HelpInterface, SettingsInterface, ChangelogInterface
 from .tools.check_theme_change import checkThemeChange
+from module.config import cfg
 from .tools import setup_logger
+
+cfg.load_config()
+setup_logger(
+    log_dir=cfg.log_dir,
+    log_retention_days=cfg.log_retention_days,
+    log_rotation=cfg.log_rotation,
+    debug_mode=cfg.debug_mode,
+)
 
 
 class MainWindow(MSFluentWindow):
@@ -27,7 +36,10 @@ class MainWindow(MSFluentWindow):
 
         self.setMicaEffectEnabled(False)
         setThemeColor('#f18cb9', lazy=True)
-        setTheme(Theme.AUTO, lazy=True)
+
+        # 从配置文件应用主题，而不是硬编码
+        from module.theme.theme_manager import ThemeManager
+        ThemeManager.apply_theme_from_config()
 
         self.resize(1200, 800)
         self.setMinimumSize(800, 600)
