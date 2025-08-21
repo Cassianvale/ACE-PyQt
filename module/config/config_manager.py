@@ -1,17 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-配置管理模块
-"""
-
 import yaml
 from pathlib import Path
 from app.tools import logger, check_auto_start, enable_auto_start, disable_auto_start
 from module.config.app_config import APP_INFO, DEFAULT_CONFIG, SYSTEM_CONFIG
+from ruamel.yaml import YAML
+from utils.singleton import SingletonMeta
 
-
-class ConfigManager:
+class ConfigManager(metaclass=SingletonMeta):
     """配置管理类"""
 
     # 配置属性映射：(属性名, 配置路径, 类型转换函数, 验证函数)

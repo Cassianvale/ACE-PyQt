@@ -25,6 +25,7 @@ from module.settings.window import WindowSettings
 from module.settings.logging import LoggingSettings
 from module.settings.directory import DirectoryManager
 from module.update.update_manager import UpdateManager
+from module.theme.theme_manager import ThemeManager
 from module.config import cfg
 from app.tools import logger
 
@@ -214,6 +215,11 @@ class SettingsInterface(ScrollArea):
             # 加载调试模式
             self.debugModeCard.load_value(LoggingSettings.get_debug_mode_status())
             
+            # 加载主题设置
+            current_theme = ThemeManager.get_current_theme()
+            theme_display_name = ThemeManager.get_theme_display_name(current_theme)
+            self.themeCard.load_value(theme_display_name)
+            
         except Exception as e:
             logger.error(f"加载设置界面失败: {str(e)}")
     
@@ -262,13 +268,70 @@ class SettingsInterface(ScrollArea):
     def _show_info_bar(self, title: str, content: str, bar_type=InfoBar.success):
         """显示信息条"""
         try:
-            InfoBar.createInfoBar(
-                content=content,
+            # 使用正确的InfoBar API
+            bar_type(
                 title=title,
-                orientation=Qt.Horizontal,
+                content=content,
+                orient=Qt.Horizontal,
                 isClosable=True,
                 position=InfoBarPosition.TOP,
+                duration=3000,
                 parent=self.parent() or self
             )
         except Exception as e:
             logger.error(f"显示信息条失败: {str(e)}")
+    
+    def _handle_theme_change(self, theme_display_name: str):
+        """处理主题变更
+        
+        Args:
+            theme_display_name (str): 主题显示名称
+            
+        Returns:
+            bool: 主题切换是否成功
+        """
+        try:
+            # 支持中文和英文主题标识符
+            theme_mapping = {
+                # 中文显示名称
+                "跟随系统": "auto",
+                "浅色模式": "light", 
+                "深色模式": "dark",
+                # 英文标识符（直接使用）
+                "auto": "auto",
+                "light": "light",
+                "dark": "dark"
+            }
+            
+            theme = theme_mapping.get(theme_display_name)
+            if theme is None:
+                logger.error(f"无效的主题显示名称: {theme_display_name}")
+                return False
+            
+            # 切换主题并保存配置
+            success = ThemeManager.switch_theme(theme)
+            
+            if success:
+                display_name = ThemeManager.get_theme_display_name(theme)
+                self._show_info_bar(
+                    "主题已切换", 
+                    f"已切换到{display_name}", 
+                    InfoBar.success
+                )
+                return True
+            else:
+                self._show_info_bar(
+                    "主题切换失败", 
+                    "主题切换或保存失败，请重试", 
+                    InfoBar.error
+                )
+                return False
+                
+        except Exception as e:
+            logger.error(f"处理主题变更失败: {str(e)}")
+            self._show_info_bar(
+                "主题切换失败", 
+                f"主题切换时发生错误: {str(e)}", 
+                InfoBar.error
+            )
+            return False

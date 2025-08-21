@@ -10,7 +10,7 @@ import sys
 import queue
 import argparse
 
-from config import ConfigManager, APP_INFO, DEFAULT_CONFIG, SYSTEM_CONFIG
+from module.config import ConfigManager, APP_INFO, DEFAULT_CONFIG, SYSTEM_CONFIG
 from utils import (
     run_as_admin,
     check_single_instance,

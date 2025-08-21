@@ -6,7 +6,8 @@ loguru==0.7.3
 packaging==25.0
 psutil==7.0.0
 pywin32==310
-pyyaml==6.0.2
+ruamel-yaml==0.18.15
+ruamel-yaml-clib==0.2.12
 requests==2.32.4
 shiboken6==6.9.1
 typing-extensions==4.14.0
